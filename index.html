@@ -112,6 +112,7 @@
         <input type="text" id="reg-user" placeholder="نام کاربری (فقط انگلیسی)">
         <input type="password" id="reg-pass" placeholder="رمز عبور (حداقل ۶ کاراکتر)">
         <input type="password" id="reg-pass2" placeholder="تکرار رمز عبور">
+        <input type="text" id="reg-code" placeholder="🔑 کد دعوت ادمین">
         <div id="reg-error" class="error" style="display:none"></div>
         <div id="reg-success" class="success" style="display:none"></div>
         <button class="btn btn-block" onclick="doRegister()">ثبت‌نام</button>
@@ -272,12 +273,15 @@ const db = getFirestore(app);
 const ADMIN_USER = "admin";
 const ADMIN_PASS = "admin1234";
 
-// GAME DATA
+// 🔑 کدی که ادمین برای ثبت‌نام باید به دوستاش بده (می‌تونی عوضش کنی)
+const ADMIN_INVITE_CODE = "WAR-2026";
+
+// GAME DATA (اصلاح شده بر اساس درخواست شما)
 const CONTINENTS = {
+  "خاورمیانه و آفریقا 🌍": ["ایران 🇮🇷","عراق 🇮🇶","سوریه 🇸🇾","یمن 🇾🇪","قطر 🇶🇦","ترکیه 🇹🇷","مصر 🇪🇬","عربستان 🇸🇦","امارات 🇦🇪","لیبی 🇱🇾","آفریقای جنوبی 🇿🇦","اسرائیل 🇮🇱"],
+  "آسیا 🌏": ["ژاپن 🇯🇵","کره جنوبی 🇰🇷","چین 🇨🇳","هند 🇮🇳","کره شمالی 🇰🇵","پاکستان 🇵🇰","اندونزی 🇮🇩","تایوان 🇹🇼","آذربایجان 🇦🇿","ارمنستان 🇦🇲"],
   "اروپا 🌍": ["انگلیس 🇬🇧","فرانسه 🇫🇷","آلمان 🇩🇪","ایتالیا 🇮🇹","اسپانیا 🇪🇸","سوئد 🇸🇪","اوکراین 🇺🇦","لهستان 🇵🇱","یونان 🇬🇷","سوئیس 🇨🇭","پرتغال 🇵🇹","روسیه 🇷🇺","بلاروس 🇧🇾","صربستان 🇷🇸"],
   "آمریکا 🌎": ["آمریکا 🇺🇸","کانادا 🇨🇦","برزیل 🇧🇷","مکزیک 🇲🇽"],
-  "آسیا 🌏": ["ژاپن 🇯🇵","کره جنوبی 🇰🇷","چین 🇨🇳","هند 🇮🇳","کره شمالی 🇰🇵","پاکستان 🇵🇰","ایران 🇮🇷","عراق 🇮🇶","سوریه 🇸🇾","یمن 🇾🇪","قطر 🇶🇦","اندونزی 🇮🇩","تایوان 🇹🇼","آذربایجان 🇦🇿","ارمنستان 🇦🇲","ترکیه 🇹رخ"],
-  "خاورمیانه و آفریقا 🌍": ["مصر 🇪🇬","عربستان 🇸🇦","امارات 🇦🇪","لیبی 🇱🇾","آفریقای جنوبی 🇿🇦","اسرائیل 🇮🇱"],
   "اقیانوسیه 🌊": ["استرالیا 🇦🇺"]
 };
 const GROUPS = ["واگنر ⚔️","سپاه پاسداران ☪️","القاعده 🏴","طالبان 🏴","حزب‌الله 🟢","داعش 🏴","SDF","CIA 🕵️"];
@@ -362,18 +366,26 @@ async function doRegister() {
   const user = document.getElementById('reg-user').value.trim().toLowerCase();
   const pass = document.getElementById('reg-pass').value;
   const pass2 = document.getElementById('reg-pass2').value;
+  const code = document.getElementById('reg-code').value.trim();
   const err = document.getElementById('reg-error');
   const suc = document.getElementById('reg-success');
   err.style.display = 'none'; suc.style.display = 'none';
-  if (!user || !pass) { err.textContent = 'همه فیلدها رو پر کن'; err.style.display = 'block'; return; }
+  
+  if (!user || !pass || !code) { err.textContent = 'همه فیلدها و کد دعوت رو پر کن'; err.style.display = 'block'; return; }
+  if (code !== ADMIN_INVITE_CODE) { err.textContent = '❌ کد دعوت ادمین اشتباه است!'; err.style.display = 'block'; return; }
   if (!/^[a-z0-9_]+$/.test(user)) { err.textContent = 'نام کاربری فقط انگلیسی و عدد'; err.style.display = 'block'; return; }
   if (pass.length < 6) { err.textContent = 'رمز عبور حداقل ۶ کاراکتر'; err.style.display = 'block'; return; }
   if (pass !== pass2) { err.textContent = 'رمزها یکی نیستن'; err.style.display = 'block'; return; }
+  
   try {
     const snap = await getDoc(doc(db, 'players', user));
     if (snap.exists()) { err.textContent = 'این نام کاربری قبلاً ثبت شده'; err.style.display = 'block'; return; }
     await setDoc(doc(db, 'players', user), { password: pass, money: 85000, gold: 0, mines: {}, military: {}, lastIncome: 0, faction: '', factionType: '' });
     suc.textContent = '✅ ثبت‌نام موفق! حالا وارد شو.'; suc.style.display = 'block';
+    document.getElementById('reg-user').value = '';
+    document.getElementById('reg-pass').value = '';
+    document.getElementById('reg-pass2').value = '';
+    document.getElementById('reg-code').value = '';
   } catch(e) { err.textContent = 'خطا در ثبت‌نام'; err.style.display = 'block'; }
 }
 
@@ -561,7 +573,7 @@ function showProfile() {
   showScreen('screen-profile');
 }
 
-// ADMIN Panel Actions
+// ADMIN PANEL
 async function loadAdminPanel() {
   const container = document.getElementById('admin-players');
   container.innerHTML = '<div class="loading">در حال بارگذاری...</div>';
@@ -606,7 +618,7 @@ async function adminSetGold() {
   loadAdminPanel();
 }
 
-// EXPOSE TO WINDOW (Because of type="module")
+// EXPOSE TO WINDOW
 window.showScreen = showScreen;
 window.switchTab = switchTab;
 window.doLogin = doLogin;
@@ -614,6 +626,7 @@ window.doRegister = doRegister;
 window.doAdminLogin = doAdminLogin;
 window.doLogout = doLogout;
 window.showContinents = showContinents;
+window.showCountries = showCountries;
 window.showGroups = showGroups;
 window.renderShopItems = renderShopItems;
 window.buyItem = buyItem;
