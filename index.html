@@ -78,7 +78,6 @@
   .admin-row .player-name { color:var(--gold); font-size:13px; font-weight:600; }
   .admin-row .player-info { color:var(--text-dim); font-size:11px; margin-top:4px; }
   .tab-bar { display:flex; gap:8px; margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:12px; }
-  .tab { background:transparent; border:1px solid var(--border); color:var(--text-dim); padding:7px 14px; cursor:pointer; font-family:'Noto Sans Arabic',sans-serif; font-size:12px; border-radius:2px; transition:all .2s; }
   .tab.active { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,.05); }
   
   .admin-grid-edit { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
@@ -100,10 +99,12 @@
 
 <div class="container">
 
+  <!-- LOADING -->
   <div class="screen active" id="screen-loading">
     <div class="loading">⏳ در حال اتصال به سرور...</div>
   </div>
 
+  <!-- LOGIN & REGISTER -->
   <div class="screen" id="screen-login">
     <div class="card" style="max-width:420px;margin:40px auto;">
       <div class="card-title">🔐 ورود به بازی</div>
@@ -132,10 +133,11 @@
     </div>
   </div>
 
+  <!-- FACTION SELECT -->
   <div class="screen" id="screen-faction">
     <div class="card" style="text-align:center;padding:32px 20px;">
       <div class="card-title" style="justify-content:center;font-size:16px;">⚔️ انتخاب طرف</div>
-      <p style="color:var(--text-dim);font-size:12px;margin-bottom:24px;">می‌خوای کشور بازی کنی یا گروهک؟</p>
+      <p style="color:var(--text-dim);font-size:12px;margin-bottom:24px;">می‌خوای کشور بازی کنی یا گروهک?</p>
       <div class="grid-2">
         <div class="faction-btn" onclick="showContinents()">
           <div class="icon">🌍</div>
@@ -151,6 +153,7 @@
     </div>
   </div>
 
+  <!-- CONTINENT -->
   <div class="screen" id="screen-continent">
     <button class="back-btn" onclick="showScreen('screen-faction')">← برگشت</button>
     <div class="card">
@@ -159,6 +162,7 @@
     </div>
   </div>
 
+  <!-- COUNTRY -->
   <div class="screen" id="screen-country">
     <button class="back-btn" onclick="showScreen('screen-continent')">← برگشت</button>
     <div class="card">
@@ -167,6 +171,7 @@
     </div>
   </div>
 
+  <!-- GROUP -->
   <div class="screen" id="screen-group">
     <button class="back-btn" onclick="showScreen('screen-faction')">← برگشت</button>
     <div class="card">
@@ -175,6 +180,7 @@
     </div>
   </div>
 
+  <!-- MAIN MENU -->
   <div class="screen" id="screen-main">
     <div class="stats-bar">
       <div class="stat-item">
@@ -212,10 +218,11 @@
     </div>
   </div>
 
+  <!-- SHOP -->
   <div class="screen" id="screen-shop">
     <button class="back-btn" onclick="showScreen('screen-main')">← برگشت</button>
     <div class="card">
-      <div class="card-title">🛒 فروشگاه نظامی</div>
+      <div class="card-title">🛒 فروشگاه نظامی (خرید دانه‌ای تجهیزات)</div>
       <select id="shop-category" onchange="renderShopItems()">
         <option value="">انتخاب دسته...</option>
       </select>
@@ -223,6 +230,7 @@
     </div>
   </div>
 
+  <!-- MINES -->
   <div class="screen" id="screen-mines">
     <button class="back-btn" onclick="showScreen('screen-main')">← برگشت</button>
     <div class="card">
@@ -231,6 +239,7 @@
     </div>
   </div>
 
+  <!-- EXCHANGE -->
   <div class="screen" id="screen-exchange">
     <button class="back-btn" onclick="showScreen('screen-main')">← برگشت</button>
     <div class="card">
@@ -252,6 +261,7 @@
     </div>
   </div>
 
+  <!-- PROFILE -->
   <div class="screen" id="screen-profile">
     <button class="back-btn" onclick="showScreen('screen-main')">← برگشت</button>
     <div class="card">
@@ -260,6 +270,7 @@
     </div>
   </div>
 
+  <!-- ADMIN PANEL -->
   <div class="screen" id="screen-admin">
     <div class="stats-bar">
       <div class="stat-item"><span class="stat-icon">🛡️</span><div><div class="stat-val">پنل ادمین کل</div></div></div>
@@ -275,6 +286,7 @@
       <div class="card-title">✏️ مرکز مدیریت و ویرایش: <span id="admin-edit-name" style="color:white"></span></div>
       
       <div class="admin-grid-edit">
+        <!-- مدیریت خزانه -->
         <div class="admin-subcard">
           <div class="admin-subcard-title">💰 مدیریت خزانه و سرمایه</div>
           <div class="admin-input-group">
@@ -292,6 +304,7 @@
           <button class="btn btn-sm btn-block" style="margin-top:10px" onclick="adminSaveTreasury()">ذخیره خزانه</button>
         </div>
         
+        <!-- مدیریت قبیله/طرف -->
         <div class="admin-subcard">
           <div class="admin-subcard-title">🏳️ تغییر حکومت / گروهک</div>
           <div class="admin-input-group">
@@ -309,11 +322,13 @@
         </div>
       </div>
 
+      <!-- ویرایش دستی تک‌تک معادن بازیکن -->
       <div class="admin-subcard">
         <div class="admin-subcard-title">⛏️ ویرایش دقیق تعداد معادن بازیکن</div>
         <div class="scroll-box" id="admin-mines-inputs"></div>
       </div>
 
+      <!-- ویرایش دستی تک‌تک تجهیزات ارتش بازیکن -->
       <div class="admin-subcard">
         <div class="admin-subcard-title">🪖 ویرایش دقیق تعداد ناوگان و ارتش نظامی</div>
         <div class="scroll-box" id="admin-military-inputs"></div>
@@ -333,6 +348,7 @@
 
 </div>
 
+<!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -369,17 +385,73 @@ const MINES = {
   "معدن آهن ⚙️": {price:7000,income:3000,gold:0,oil:0},
   "معدن نقره 🪙": {price:10000,income:5000,gold:0,oil:0},
   "معدن طلا 🥇": {price:30000,income:0,gold:20,oil:0},
-  "چاه نفت 🛢️": {price:10000,income:0,gold:0,oil:50} // 🛢️ تغییر چاه نفت به تولید ۵۰ بشکه نفت به جای پول
+  "چاه نفت 🛢️": {price:10000,income:0,gold:0,oil:50}
 };
+
+// ⚙️ بازنویسی قیمت‌ها به صورت دانه‌ای بر اساس درخواست شما:
 const MILITARY = {
-  "سربازها 🪖": {"100 سرباز عادی":100,"100 تکاور":400,"100 آرپیجی‌زن":500,"100 کماندو":600,"10 فرمانده":2000},
-  "نیروی زمینی 🚗": {"10 تانک T-72":400,"10 تانک T-90":500,"10 تانک لئوپارد 2":300,"10 تانک آبرامز X":1000,"1000 مرزبان":1000},
-  "نیروی هوایی ✈️": {"1 ایلوشین جنگی":500,"5 ایلوشین 76":500,"5 بوئینگ 850":1000,"20 جنگنده F-14":250,"20 جنگنده F-16":300,"20 جنگنده سوخو 35":350,"10 جنگنده F-35":400,"20 هلیکوپتر Mi-24":50,"10 هلیکوپتر آگوستا":100,"10 هلیکوپتر وایپر":4000,"10 هلیکوپتر آپاچی":800},
-  "پهپادها 🛸": {"100 پهپاد جنگی قوی":250,"100 پهپاد جنگی پیشرفته":500,"50 پهپاد انتحاری":700,"20 پهپاد رایپر":1000},
-  "نیروی دریایی 🚢": {"5 ناو جنگی":500,"10 ناوشکن":500,"8 ناوچه جنگی":700,"4 شناور جنگی":800,"10 زیردریایی کوچک":450,"5 زیردریایی بزرگ":1000,"5 زیردریایی اتمی":2000,"50 قایق تندرو":1000},
-  "موشک‌ها 🚀": {"10 موشک کروز":500,"10 موشک قیام":400,"10 موشک بالستیک":550,"5 موشک قاره‌پیما":600,"5 موشک DF-41":700,"5 موشک هایپرسونیک":2000},
-  "پدافند 🛡️": {"5 پدافند S-500":2000,"8 پدافند S-400":1000,"10 پدافند فلاخن داوود":500},
-  "سیستم هکری 💻": {"10 هکر":1000,"10 ضدهکر":2000,"10 کامپیوتر":3000,"1 سامانه موشک مخفی":7000}
+  "سربازها 🪖": {
+    "سرباز عادی": 1,        // ۱۰۰ تا بود ۱۰۰، پس دونه‌ای ۱
+    "تکاور": 4,             // ۱۰۰ تا بود ۴۰۰، پس دونه‌ای ۴
+    "آرپیجی‌زن": 5,         // ۱۰۰ تا بود ۵۰۰، پس دونه‌ای ۵
+    "کماندو": 6,            // ۱۰۰ تا بود ۶۰۰، پس دونه‌ای ۶
+    "فرمانده": 200          // ۱۰ تا بود ۲۰۰۰، پس دونه‌ای ۲۰۰
+  },
+  "نیروی زمینی 🚗": {
+    "تانک T-72": 40,        // ۱۰ تا بود ۴۰۰، پس دونه‌ای ۴۰
+    "تانک T-90": 50,        // ۱۰ تا بود ۵۰۰، پس دونه‌ای ۵۰
+    "تانک لئوپارد 2": 30,    // ۱۰ تا بود ۳۰۰، پس دونه‌ای ۳۰
+    "تانک آبرامز X": 100,    // ۱۰ تا بود ۱۰۰۰، پس دونه‌ای ۱۰۰
+    "مرزبان": 1             // ۱۰۰۰ تا بود ۱۰۰۰، پس دونه‌ای ۱
+  },
+  "نیروی هوایی ✈️": {
+    "جنگنده F-14": 12.5,     // ۲۰ تا بود ۲۵۰، دونه‌ای ۱۲.۵
+    "جنگنده F-16": 15,       // ۲۰ تا بود ۳۰۰، دونه‌ای ۱۵
+    "جنگنده سوخو 35": 17.5,  // ۲۰ تا بود ۳۵۰، دونه‌ای ۱۷.۵
+    "جنگنده F-35": 40,       // ۱۰ تا بود ۴۰۰، دونه‌ای ۴۰
+    "هلیکوپتر Mi-24": 2.5,   // ۲۰ تا بود ۵۰، دونه‌ای ۲.۵
+    "هلیکوپتر آگوستا": 10,    // ۱۰ تا بود ۱۰۰، دونه‌ای ۱۰
+    "هلیکوپتر وایپر": 400,    // ۱۰ تا بود ۴۰۰۰، دونه‌ای ۴۰۰
+    "هلیکوپتر آپاچی": 80,    // ۱۰ تا بود ۸۰۰، دونه‌ای ۸۰
+    "ایلوشین جنگی": 500,     // ۱ دونه بود ۵۰۰
+    "ایلوشین 76": 100,       // ۵ تا بود ۵۰۰، دونه‌ای ۱۰۰
+    "بوئینگ 850": 200        // ۵ تا بود ۱۰۰۰، دونه‌ای ۲۰۰
+  },
+  "پهپادها 🛸": {
+    "پهپاد جنگی قوی": 2.5,     // ۱۰۰ تا بود ۲۵۰، دونه‌ای ۲.5
+    "پهپاد جنگی پیشرفته": 5,   // ۱۰۰ تا بود ۵۰۰، دونه‌ای ۵
+    "پهپاد انتحاری": 14,      // ۵۰ تا بود ۷۰۰، دونه‌ای ۱۴
+    "پهپاد رایپر": 50         // ۲۰ تا بود ۱۰۰۰، دونه‌ای ۵۰
+  },
+  "نیروی دریایی 🚢": {
+    "ناو جنگی": 100,          // ۵ تا بود ۵۰۰، دونه‌ای ۱۰۰
+    "ناوشکن": 50,             // ۱۰ تا بود ۵۰۰، دونه‌ای ۵۰
+    "ناوچه جنگی": 87.5,       // ۸ تا بود ۷۰۰، دونه‌ای ۸۷.۵
+    "شناور جنگی": 200,        // ۴ تا بود ۸۰۰، دونه‌ای ۲۰۰
+    "زیردریایی کوچک": 45,     // ۱۰ تا بود ۴۵۰، دونه‌ای ۴۵
+    "زیردریایی بزرگ": 200,     // ۵ تا بود ۱۰۰۰، دونه‌ای ۲۰۰
+    "زیردریایی اتمی": 400,     // ۵ تا بود ۲۰۰۰، دونه‌ای ۴۰۰
+    "قایق تندرو": 20           // ۵۰ تا بود ۱۰۰۰، دونه‌ای ۲۰
+  },
+  "موشک‌ها 🚀": {
+    "موشک کروز": 50,          // ۱۰ تا بود ۵۰۰، دونه‌ای ۵۰
+    "موشک قیام": 40,          // ۱۰ تا بود ۴۰۰، دونه‌ای ۴۰
+    "موشک بالستیک": 55,       // ۱۰ تا بود ۵۵۰، دونه‌ای ۵۵
+    "موشک قاره‌پیما": 120,      // ۵ تا بود ۶۰۰، دونه‌ای ۱۲۰
+    "موشک DF-41": 140,        // ۵ تا بود ۷۰۰، دونه‌ای ۱۴۰
+    "موشک هایپرسونیک": 400    // ۵ تا بود ۲۰۰۰، دونه‌ای ۴۰۰
+  },
+  "پدافند 🛡️": {
+    "پدافند S-500": 400,      // ۵ تا بود ۲۰۰۰، دونه‌ای ۴۰۰
+    "پدافند S-400": 125,      // ۸ تا بود ۱۰۰۰، دونه‌ای ۱۲۵
+    "پدافند فلاخن داوود": 50   // ۱۰ تا بود ۵۰۰، دونه‌ای ۵۰
+  },
+  "سیستم هکری 💻": {
+    "هکر": 100,               // ۱۰ تا بود ۱۰۰۰، دونه‌ای ۱۰۰
+    "ضدهکر": 200,             // ۱۰ تا بود ۲۰۰۰، دونه‌ای ۲۰۰
+    "کامپیوتر": 300,          // ۱۰ تا بود ۳۰۰۰، دونه‌ای ۳۰۰
+    "سامانه موشک مخفی": 7000  // ۱ دونه بود ۷۰۰۰
+  }
 };
 
 let currentUser = null;
@@ -558,15 +630,16 @@ function renderShopItems() {
     const owned = (currentPlayer.military || {})[name] || 0;
     const div = document.createElement('div');
     div.className = 'shop-item';
-    // ✍️ اضافه کردن فیلد دریافت تعداد دلخواه خرید به صورت پیش‌فرض ۱
+    
+    // نمایش قیمت هر ۱ واحد تجهیزات به صورت کاملاً تفکیک شده و دانه‌ای
     div.innerHTML = `
       <div>
         <div class="item-name">${name}</div>
         ${owned > 0 ? `<div style="color:var(--text-dim);font-size:10px;">دارید: ${owned} عدد</div>` : ''}
       </div>
       <div style="display:flex;align-items:center;gap:6px;">
-        <input type="number" value="1" min="1" id="shop-count-${name.replace(/\s+/g, '')}" style="width:55px; padding:4px; margin:0; text-align:center; font-size:12px;">
-        <span class="item-price">${price.toLocaleString()} ₿</span>
+        <input type="number" value="1" min="1" id="shop-count-${name.replace(/\s+/g, '')}" style="width:65px; padding:4px; margin:0; text-align:center; font-size:12px;">
+        <span class="item-price">هر عدد ${price.toLocaleString()} ₿</span>
         <button class="btn btn-sm" onclick="buyItem('${name}',${price})">خرید</button>
       </div>`;
     container.appendChild(div);
@@ -586,7 +659,7 @@ async function buyItem(name, price) {
   currentPlayer.military[name] = (currentPlayer.military[name] || 0) + qty;
   await savePlayer();
   updateStats();
-  notify(`✅ تعداد ${qty} عدد ${name} خریدی!`);
+  notify(`✅ تعداد ${qty} عدد ${name} با موفقیت خریداری شد!`);
   renderShopItems();
 }
 
@@ -664,7 +737,7 @@ async function collectIncome() {
   Object.entries(currentPlayer.mines || {}).forEach(([name, count]) => {
     totalMoney += (MINES[name].income || 0) * count;
     totalGold += (MINES[name].gold || 0) * count;
-    totalOil += (MINES[name].oil || 0) * count; // 🛢️ محاسبه استخراج نفت خام
+    totalOil += (MINES[name].oil || 0) * count;
   });
   if (totalMoney === 0 && totalGold === 0 && totalOil === 0) { notify('معدنی نداری! اول معدن بخر.'); return; }
   
@@ -753,7 +826,7 @@ async function adminEdit(uid) {
       const p = snap.data();
       document.getElementById('admin-money-val').value = p.money || 0;
       document.getElementById('admin-gold-val').value = p.gold || 0;
-      document.getElementById('admin-oil-val').value = p.oil || 0; // لود نفت در پنل ادمین
+      document.getElementById('admin-oil-val').value = p.oil || 0;
       document.getElementById('admin-faction-val').value = p.faction || '';
       document.getElementById('admin-factiontype-val').value = p.factionType || 'country';
       
