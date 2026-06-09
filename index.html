@@ -24,7 +24,8 @@
   .card::before { content:''; position:absolute; top:0;left:0;right:0; height:2px; background:linear-gradient(90deg,transparent,var(--gold),transparent); opacity:.4; }
   .card-title { font-family:'Cinzel',serif; color:var(--gold); font-size:13px; letter-spacing:2px; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
   .btn { background:transparent; border:1px solid var(--gold); color:var(--gold); padding:9px 18px; cursor:pointer; font-family:'Noto Sans Arabic',sans-serif; font-size:13px; transition:all .2s; border-radius:2px; }
-  .btn:hover { background:var(--gold); color:var(--dark); }
+  .btn:hover:not(:disabled) { background:var(--gold); color:var(--dark); }
+  .btn:disabled { border-color: var(--text-dim); color: var(--text-dim); cursor: not-allowed; opacity: 0.5; }
   .btn-red { border-color:var(--red-light); color:var(--red-light); }
   .btn-red:hover { background:var(--red-light); color:white; }
   .btn-sm { padding:5px 12px; font-size:12px; }
@@ -40,7 +41,8 @@
   .list-btn { background:var(--dark3); border:1px solid var(--border); color:var(--text); padding:12px 16px; cursor:pointer; border-radius:2px; text-align:right; transition:all .2s; font-family:'Noto Sans Arabic',sans-serif; font-size:13px; display:block; width:100%; margin-bottom:7px; }
   .list-btn:hover { border-color:var(--gold); color:var(--gold); }
   .country-btn { background:var(--dark3); border:1px solid var(--border); color:var(--text); padding:9px 12px; cursor:pointer; border-radius:2px; text-align:center; transition:all .2s; font-family:'Noto Sans Arabic',sans-serif; font-size:12px; width:100%; }
-  .country-btn:hover { border-color:var(--gold); color:var(--gold); }
+.country-btn:hover:not(:disabled) { border-color:var(--gold); color:var(--gold); }
+  .country-btn:disabled { border-color: #3a1a1a; color: #8b1a1a; cursor: not-allowed; opacity: 0.6; text-decoration: line-through; }
   .stats-bar { background:var(--dark2); border:1px solid var(--border); border-radius:4px; padding:12px 18px; margin-bottom:18px; display:flex; gap:24px; align-items:center; flex-wrap:wrap; }
   .stat-item { display:flex; align-items:center; gap:7px; }
   .stat-item .stat-icon { font-size:16px; }
@@ -74,7 +76,7 @@
   .error { color:#c0392b; font-size:12px; margin-bottom:10px; }
   .success { color:#27ae60; font-size:12px; margin-bottom:10px; }
   .loading { text-align:center; color:var(--text-dim); padding:30px; font-size:13px; }
-  .admin-row { background:var(--dark3); border:1px solid var(--border); border-radius:3px; padding:12px; margin-bottom:8px; }
+.admin-row { background:var(--dark3); border:1px solid var(--border); border-radius:3px; padding:12px; margin-bottom:8px; }
   .admin-row .player-name { color:var(--gold); font-size:13px; font-weight:600; }
   .admin-row .player-info { color:var(--text-dim); font-size:11px; margin-top:4px; }
   .tab-bar { display:flex; gap:8px; margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:12px; }
@@ -86,23 +88,23 @@
 
 <div class="header">
   <h1>TEXT WAR</h1>
-  <p id="header-sub">در حال بارگذاری...</p>
+  <p id="header-sub">مرکز فرماندهی</p>
 </div>
 
 <div class="container">
 
   <!-- LOADING -->
   <div class="screen active" id="screen-loading">
-    <div class="loading">⏳ در حال اتصال به سرور...</div>
+    <div class="loading">:hourglass_flowing_sand: در حال اتصال به سرور مدریت فایربیس...</div>
   </div>
 
   <!-- LOGIN -->
   <div class="screen" id="screen-login">
     <div class="card" style="max-width:420px;margin:40px auto;">
-      <div class="card-title">🔐 ورود به بازی</div>
+      <div class="card-title">:closed_lock_with_key: ورود به بازی</div>
       <div class="tab-bar">
-        <button class="tab active" onclick="switchTab('login')">ورود</button>
-        <button class="tab" onclick="switchTab('register')">ثبت‌نام</button>
+        <button class="tab active" id="tab-login" onclick="switchTab('login')">ورود</button>
+        <button class="tab" id="tab-register" onclick="switchTab('register')">ثبت‌نام</button>
       </div>
       <div id="login-form">
         <input type="text" id="login-user" placeholder="نام کاربری">
@@ -127,16 +129,16 @@
   <!-- FACTION SELECT -->
   <div class="screen" id="screen-faction">
     <div class="card" style="text-align:center;padding:32px 20px;">
-      <div class="card-title" style="justify-content:center;font-size:16px;">⚔️ انتخاب طرف</div>
+      <div class="card-title" style="justify-content:center;font-size:16px;">⚔ انتخاب طرف</div>
       <p style="color:var(--text-dim);font-size:12px;margin-bottom:24px;">می‌خوای کشور بازی کنی یا گروهک؟</p>
       <div class="grid-2">
         <div class="faction-btn" onclick="showContinents()">
-          <div class="icon">🌍</div>
+          <div class="icon">:earth_africa:</div>
           <div class="label">کشور</div>
           <div class="desc">اداره یک کشور و فتح دیگران</div>
         </div>
         <div class="faction-btn" onclick="showGroups()">
-          <div class="icon">⚔️</div>
+          <div class="icon">⚔</div>
           <div class="label">گروهک</div>
           <div class="desc">فعالیت به عنوان نیروی مسلح</div>
         </div>
@@ -148,7 +150,7 @@
   <div class="screen" id="screen-continent">
     <button class="back-btn" onclick="showScreen('screen-faction')">← برگشت</button>
     <div class="card">
-      <div class="card-title">🌐 انتخاب قاره</div>
+      <div class="card-title">:globe_with_meridians: انتخاب قاره</div>
       <div id="continent-list"></div>
     </div>
   </div>
@@ -161,12 +163,11 @@
       <div class="grid-3" id="country-list"></div>
     </div>
   </div>
-
-  <!-- GROUP -->
+<!-- GROUP -->
   <div class="screen" id="screen-group">
     <button class="back-btn" onclick="showScreen('screen-faction')">← برگشت</button>
     <div class="card">
-      <div class="card-title">⚔️ انتخاب گروهک</div>
+      <div class="card-title">⚔ انتخاب گروهک</div>
       <div class="grid-2" id="group-list"></div>
     </div>
   </div>
@@ -175,7 +176,7 @@
   <div class="screen" id="screen-main">
     <div class="stats-bar">
       <div class="stat-item">
-        <span class="stat-icon">🏳️</span>
+        <span class="stat-icon">🏳</span>
         <div><div class="stat-val" id="stat-faction">—</div><div class="stat-label">طرف شما</div></div>
       </div>
       <div class="stat-item">
@@ -195,13 +196,13 @@
         <div class="menu-icon">🛒</div><div class="menu-label">فروشگاه نظامی</div>
       </div>
       <div class="menu-btn" onclick="showScreen('screen-mines');renderMines()">
-        <div class="menu-icon">⛏️</div><div class="menu-label">مدیریت معادن</div>
+        <div class="menu-icon">⛏</div><div class="menu-label">مدیریت معادن</div>
       </div>
       <div class="menu-btn" onclick="showProfile()">
-        <div class="menu-icon">📊</div><div class="menu-label">پروفایل</div>
+        <div class="menu-icon">:bar_chart:</div><div class="menu-label">پروفایل</div>
       </div>
       <div class="menu-btn" onclick="collectIncome()">
-        <div class="menu-icon">💰</div><div class="menu-label">دریافت درآمد</div>
+        <div class="menu-icon">:moneybag:</div><div class="menu-label">دریافت درآمد خودکار</div>
       </div>
     </div>
   </div>
@@ -222,7 +223,7 @@
   <div class="screen" id="screen-mines">
     <button class="back-btn" onclick="showScreen('screen-main')">← برگشت</button>
     <div class="card">
-      <div class="card-title">⛏️ مدیریت معادن</div>
+      <div class="card-title">⛏ مدیریت معادن</div>
       <div id="mines-list"></div>
     </div>
   </div>
@@ -231,7 +232,7 @@
   <div class="screen" id="screen-profile">
     <button class="back-btn" onclick="showScreen('screen-main')">← برگشت</button>
     <div class="card">
-      <div class="card-title">📊 پروفایل</div>
+      <div class="card-title">:bar_chart: پروفایل</div>
       <div id="profile-content"></div>
     </div>
   </div>
@@ -239,22 +240,22 @@
   <!-- ADMIN -->
   <div class="screen" id="screen-admin">
     <div class="stats-bar">
-      <div class="stat-item"><span class="stat-icon">🛡️</span><div><div class="stat-val">پنل ادمین</div></div></div>
+      <div class="stat-item"><span class="stat-icon">🛡</span><div><div class="stat-val">پنل ادمین کل</div></div></div>
       <div style="margin-right:auto"><button class="btn btn-sm btn-red" onclick="doLogout()">خروج</button></div>
     </div>
     <div class="card">
-      <div class="card-title">👥 بازیکنان</div>
+      <div class="card-title">:busts_in_silhouette: لیست کل بازیکنان و کشورها</div>
       <div id="admin-players"><div class="loading">در حال بارگذاری...</div></div>
     </div>
     <div class="card" id="admin-edit-card" style="display:none">
-      <div class="card-title">✏️ ویرایش بازیکن: <span id="admin-edit-name"></span></div>
+      <div class="card-title">:pencil2: ویرایش دارایی بازیکن: <span id="admin-edit-name"></span></div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
-        <label style="color:var(--text-dim);font-size:12px;">بیت‌کوین:</label>
+        <label style="width:70px;color:var(--text-dim);font-size:12px;">بیت‌کوین:</label>
         <input type="text" id="admin-money-val" style="width:140px;margin:0">
         <button class="btn btn-sm" onclick="adminSetMoney()">ثبت</button>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-        <label style="color:var(--text-dim);font-size:12px;">طلا:</label>
+        <label style="width:70px;color:var(--text-dim);font-size:12px;">طلا:</label>
         <input type="text" id="admin-gold-val" style="width:140px;margin:0">
         <button class="btn btn-sm" onclick="adminSetGold()">ثبت</button>
       </div>
@@ -262,11 +263,10 @@
   </div>
 
 </div>
-
-<!-- Firebase -->
+<!-- Firebase Config & Logic -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAP7uFEJerRjCH-FkqP8vzjqshV1XZgGUQ",
@@ -280,42 +280,40 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ADMIN CONFIG
 const ADMIN_USER = "admin";
 const ADMIN_PASS = "admin1234";
 
-// GAME DATA
 const CONTINENTS = {
-  "اروپا 🌍": ["انگلیس 🇬🇧","فرانسه 🇫🇷","آلمان 🇩🇪","ایتالیا 🇮🇹","اسپانیا 🇪🇸","سوئد 🇸🇪","اوکراین 🇺🇦","لهستان 🇵🇱","یونان 🇬🇷","سوئیس 🇨🇭","پرتغال 🇵🇹","روسیه 🇷🇺","بلاروس 🇧🇾","صربستان 🇷🇸"],
-  "آمریکا 🌎": ["آمریکا 🇺🇸","کانادا 🇨🇦","برزیل 🇧🇷","مکزیک 🇲🇽"],
-  "آسیا 🌏": ["ژاپن 🇯🇵","کره جنوبی 🇰🇷","چین 🇨🇳","هند 🇮🇳","کره شمالی 🇰🇵","پاکستان 🇵🇰","ایران 🇮🇷","عراق 🇮🇶","سوریه 🇸🇾","یمن 🇾🇪","قطر 🇶🇦","اندونزی 🇮🇩","تایوان 🇹🇼","آذربایجان 🇦🇿","ارمنستان 🇦🇲","ترکیه 🇹🇷"],
-  "خاورمیانه و آفریقا 🌍": ["مصر 🇪🇬","عربستان 🇸🇦","امارات 🇦🇪","لیبی 🇱🇾","آفریقای جنوبی 🇿🇦","اسرائیل 🇮🇱"],
-  "اقیانوسیه 🌊": ["استرالیا 🇦🇺"]
+  "اروپا :earth_africa:": ["انگلیس :gb:","فرانسه :fr:","آلمان :de:","ایتالیا :it:","اسپانیا :es:","سوئد 🇸🇪","اوکراین 🇺🇦","لهستان 🇵🇱","یونان 🇬🇷","سوئیس 🇨🇭","پرتغال 🇵🇹","روسیه :ru:","بلاروس 🇧🇾","صربستان 🇷🇸"],
+  "آمریکا :earth_americas:": ["آمریکا :us:","کانادا 🇨🇦","برزیل 🇧🇷","مکزیک 🇲🇽"],
+  "آسیا :earth_asia:": ["ژاپن :jp:","کره جنوبی :kr:","چین :cn:","هند 🇮🇳","کره شمالی 🇰🇵","پاکستان 🇵🇰","ایران 🇮🇷","عراق 🇮🇶","سوریه 🇸🇾","یمن 🇾🇪","قطر 🇶🇦","اندونزی 🇮🇩","تایوان 🇹🇼","آذربایجان 🇦🇿","ارمنستان 🇦🇲","ترکیه 🇹🇷"],
+  "خاورمیانه و آفریقا :earth_africa:": ["مصر 🇪🇬","عربستان 🇸🇦","امارات 🇦🇪","لیبی 🇱🇾","آفریقای جنوبی 🇿🇦","اسرائیل 🇮🇱"],
+  "اقیانوسیه :ocean:": ["استرالیا 🇦🇺"]
 };
-const GROUPS = ["واگنر ⚔️","سپاه پاسداران ☪️","القاعده 🏴","طالبان 🏴","حزب‌الله 🟢","داعش 🏴","SDF","CIA 🕵️"];
+const GROUPS = ["واگنر ⚔","سپاه پاسداران ☪","القاعده 🏴","طالبان 🏴","حزب‌الله 🟢","داعش 🏴","SDF","CIA 🕵"];
 const MINES = {
   "معدن مس 🟤": {price:5000,income:2000,gold:0},
-  "معدن آهن ⚙️": {price:7000,income:3000,gold:0},
+  "معدن آهن ⚙": {price:7000,income:3000,gold:0},
   "معدن نقره 🪙": {price:10000,income:5000,gold:0},
   "معدن طلا 🥇": {price:30000,income:0,gold:20},
-  "چاه نفت 🛢️": {price:10000,income:7000,gold:0}
+  "چاه نفت 🛢": {price:10000,income:7000,gold:0}
 };
 const MILITARY = {
   "سربازها 🪖": {"100 سرباز عادی":100,"100 تکاور":400,"100 آرپیجی‌زن":500,"100 کماندو":600,"10 فرمانده":2000},
-  "نیروی زمینی 🚗": {"10 تانک T-72":400,"10 تانک T-90":500,"10 تانک لئوپارد 2":300,"10 تانک آبرامز X":1000,"1000 مرزبان":1000},
-  "نیروی هوایی ✈️": {"1 ایلوشین جنگی":500,"5 ایلوشین 76":500,"5 بوئینگ 850":1000,"20 جنگنده F-14":250,"20 جنگنده F-16":300,"20 جنگنده سوخو 35":350,"10 جنگنده F-35":400,"20 هلیکوپتر Mi-24":50,"10 هلیکوپتر آگوستا":100,"10 هلیکوپتر وایپر":4000,"10 هلیکوپتر آپاچی":800},
+  "نیروی زمینی :car:": {"10 تانک T-72":400,"10 تانک T-90":500,"10 تانک لئوپارد 2":300,"10 تانک آبرامز X":1000,"1000 مرزبان":1000},
+  "نیروی هوایی :airplane:": {"1 ایلوشین جنگی":500,"5 ایلوشین 76":500,"5 بوئینگ 850":1000,"20 جنگنده F-14":250,"20 جنگنده F-16":300,"20 جنگنده سوخو 35":350,"10 جنگنده F-35":400,"20 هلیکوپتر Mi-24":50,"10 هلیکوپتر آگوستا":100,"10 هلیکوپتر وایپر":4000,"10 هلیکوپتر آپاچی":800},
   "پهپادها 🛸": {"100 پهپاد جنگی قوی":250,"100 پهپاد جنگی پیشرفته":500,"50 پهپاد انتحاری":700,"20 پهپاد رایپر":1000},
-  "نیروی دریایی 🚢": {"5 ناو جنگی":500,"10 ناوشکن":500,"8 ناوچه جنگی":700,"4 شناور جنگی":800,"10 زیردریایی کوچک":450,"5 زیردریایی بزرگ":1000,"5 زیردریایی اتمی":2000,"50 قایق تندرو":1000},
-  "موشک‌ها 🚀": {"10 موشک کروز":500,"10 موشک قیام":400,"10 موشک بالستیک":550,"5 موشک قاره‌پیما":600,"5 موشک DF-41":700,"5 موشک هایپرسونیک":2000},
-  "پدافند 🛡️": {"5 پدافند S-500":2000,"8 پدافند S-400":1000,"10 پدافند فلاخن داوود":500},
-  "سیستم هکری 💻": {"10 هکر":1000,"10 ضدهکر":2000,"10 کامپیوتر":3000,"1 سامانه موشک مخفی":7000}
+  "نیروی دریایی :ship:": {"5 ناو جنگی":500,"10 ناوشکن":500,"8 ناوچه جنگی":700,"4 شناور جنگی":800,"10 زیردریایی کوچک":450,"5 زیردریایی بزرگ":1000,"5 زیردریایی اتمی":2000,"50 قایق تندرو":1000},
+  "موشک‌ها :rocket:": {"10 موشک کروز":500,"10 موشک قیام":400,"10 موشک بالستیک":550,"5 موشک قاره‌پیما":600,"5 موشک DF-41":700,"5 موشک هایپرسونیک":2000},
+  "پدافند 🛡": {"5 پدافند S-500":2000,"8 پدافند S-400":1000,"10 پدافند فلاخن داوود":500},
+  "سیستم هکری :computer:": {"10 هکر":1000,"10 ضدهکر":2000,"10 کامپیوتر":3000,"1 سامانه موشک مخفی":7000}
 };
 
 let currentUser = null;
 let currentPlayer = null;
 let adminEditTarget = null;
 
-// HELPERS
+// UI FUNCTIONS
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -330,6 +328,7 @@ function notify(msg) {
   document.body.appendChild(n);
   setTimeout(() => n.remove(), 2800);
 }
+window.notify = notify;
 
 function updateStats() {
   if (!currentPlayer) return;
@@ -342,11 +341,134 @@ async function savePlayer() {
   if (!currentUser || !currentPlayer) return;
   await setDoc(doc(db, 'players', currentUser), currentPlayer);
 }
+list.innerHTML = '';
+  Object.keys(CONTINENTS).forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'list-btn';
+    btn.textContent = c;
+    btn.onclick = () => showCountries(c);
+    list.appendChild(btn);
+  });
+  showScreen('screen-continent');
+};
 
-// AUTH
+async function showCountries(continent) {
+  document.getElementById('country-title').textContent = 'کشورهای قاره ' + continent;
+  const list = document.getElementById('country-list');
+  list.innerHTML = '<div class="loading">در حال بررسی ظرفیت کشورها...</div>';
+  
+  const occupied = await getOccupiedFactions();
+  list.innerHTML = '';
+  
+  CONTINENTS[continent].forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'country-btn';
+    const isTaken = occupied.includes(c);
+    btn.textContent = c + (isTaken ? ' (پر شده :x:)' : '');
+    if(isTaken) btn.disabled = true;
+    btn.onclick = () => selectFaction(c, 'country');
+    list.appendChild(btn);
+  });
+  showScreen('screen-country');
+}
+window.showCountries = showCountries;
+
+async function showGroups() {
+  const list = document.getElementById('group-list');
+  list.innerHTML = '<div class="loading">در حال بررسی ظرفیت گروهک‌ها...</div>';
+  
+  const occupied = await getOccupiedFactions();
+  list.innerHTML = '';
+  
+  GROUPS.forEach(g => {
+    const btn = document.createElement('button');
+    btn.className = 'country-btn';
+    const isTaken = occupied.includes(g);
+    btn.textContent = g + (isTaken ? ' (پر شده :x:)' : '');
+    if(isTaken) btn.disabled = true;
+    btn.onclick = () => selectFaction(g, 'group');
+    list.appendChild(btn);
+  });
+  showScreen('screen-group');
+}
+window.showGroups = showGroups;
+
+async function selectFaction(faction, type) {
+  const occupied = await getOccupiedFactions();
+  if (occupied.includes(faction)) {
+    notify(':x: متاسفانه این جناح همین الان توسط بازیکن دیگری گرفته شد!');
+    return;
+  }
+  currentPlayer.faction = faction;
+  currentPlayer.factionType = type;
+  await savePlayer();
+  updateStats();
+  notify(':white_check_mark: جناح نظامی ' + faction + ' با موفقیت به نام شما ثبت شد!');
+  showScreen('screen-main');
+}
+
+// SHOP LOGIC
+window.initShop = function() {
+  const sel = document.getElementById('shop-category');
+  sel.innerHTML = '<option value="">انتخاب دسته تجهیزات...</option>';
+  Object.keys(MILITARY).forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat; opt.textContent = cat;
+    sel.appendChild(opt);
+  });
+  document.getElementById('shop-items').innerHTML = '';
+};
+
+window.renderShopItems = function() {
+  const cat = document.getElementById('shop-category').value;
+  const container = document.getElementById('shop-items');
+  if (!cat) { container.innerHTML = ''; return; }
+  container.innerHTML = '';
+  Object.entries(MILITARY[cat]).forEach(([name, price]) => {
+    const owned = (currentPlayer.military  {})[name]  0;
+    const div = document.createElement('div');
+    div.className = 'shop-item';
+    div.innerHTML = 
+      <div>
+        <div class="item-name">${name}</div>
+        ${owned > 0 ? <div style="color:var(--text-dim);font-size:10px;">تعداد دارایی شما: ${owned}</div> : ''}
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="item-price">${price.toLocaleString()} ₿</span>
+        <button class="btn btn-sm" onclick="buyItem('${name}',${price})">خرید تجهیزات</button>
+      </div>;
+    container.appendChild(div);
+  });
+};
+
+window.buyItem = async function(name, price) {
+  if ((currentPlayer.money || 0) < price) { notify(':x: بیت‌کوین کافی برای خرید این تجهیزات نداری!'); return; }
+  currentPlayer.money -= price;
+  if (!currentPlayer.military) currentPlayer.military = {};
+  currentPlayer.military[name] = (currentPlayer.military[name] || 0) + 1;
+  await savePlayer();
+  updateStats();
+  notify(':white_check_mark: ' + name + ' با موفقیت به انبار ارتش اضافه شد!');
+  renderShopItems();
+};
+// GET OCCUPIED FACTIONS
+async function getOccupiedFactions() {
+  const occupied = [];
+  try {
+    const snap = await getDocs(collection(db, 'players'));
+    snap.forEach(d => {
+      if(d.data().faction) {
+        occupied.push(d.data().faction);
+      }
+    });
+  } catch(e) { console.error("Error getting occupied factions", e); }
+  return occupied;
+}
+
+// AUTH TAB SWITCH
 window.switchTab = function(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
+  document.getElementById(tab-${tab}).classList.add('active');
   document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
   document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
 };
@@ -367,7 +489,7 @@ window.doLogin = async function() {
     document.getElementById('header-sub').textContent = 'مرکز فرماندهی — ' + user;
     if (!currentPlayer.faction) { showScreen('screen-faction'); }
     else { updateStats(); showScreen('screen-main'); }
-  } catch(e) { err.textContent = 'خطا در اتصال'; err.style.display = 'block'; }
+  } catch(e) { err.textContent = 'خطا در اتصال به فایربیس'; err.style.display = 'block'; }
 };
 
 window.doRegister = async function() {
@@ -378,14 +500,14 @@ window.doRegister = async function() {
   const suc = document.getElementById('reg-success');
   err.style.display = 'none'; suc.style.display = 'none';
   if (!user || !pass) { err.textContent = 'همه فیلدها رو پر کن'; err.style.display = 'block'; return; }
-  if (!/^[a-z0-9_]+$/.test(user)) { err.textContent = 'نام کاربری فقط انگلیسی و عدد'; err.style.display = 'block'; return; }
+  if (!/^[a-z0-9_]+$/.test(user)) { err.textContent = 'نام کاربری فقط انگلیسی و عدد بدون فاصله'; err.style.display = 'block'; return; }
   if (pass.length < 6) { err.textContent = 'رمز عبور حداقل ۶ کاراکتر'; err.style.display = 'block'; return; }
   if (pass !== pass2) { err.textContent = 'رمزها یکی نیستن'; err.style.display = 'block'; return; }
   try {
     const snap = await getDoc(doc(db, 'players', user));
     if (snap.exists()) { err.textContent = 'این نام کاربری قبلاً ثبت شده'; err.style.display = 'block'; return; }
     await setDoc(doc(db, 'players', user), { password: pass, money: 85000, gold: 0, mines: {}, military: {}, lastIncome: 0, faction: '', factionType: '' });
-    suc.textContent = '✅ ثبت‌نام موفق! حالا وارد شو.'; suc.style.display = 'block';
+    suc.textContent = ':white_check_mark: ثبت‌نام موفق! حالا از تب ورود وارد شو.'; suc.style.display = 'block';
   } catch(e) { err.textContent = 'خطا در ثبت‌نام'; err.style.display = 'block'; }
 };
 
@@ -394,154 +516,81 @@ window.doAdminLogin = function() {
   const pass = prompt('رمز عبور:');
   if (user === ADMIN_USER && pass === ADMIN_PASS) {
     currentUser = 'admin';
-    document.getElementById('header-sub').textContent = 'پنل ادمین';
+    document.getElementById('header-sub').textContent = 'پنل مدیریت ادمین';
     loadAdminPanel();
     showScreen('screen-admin');
-  } else { notify('❌ اطلاعات اشتباهه'); }
+  } else { notify(':x: اطلاعات ورود ادمین اشتباهه'); }
 };
 
 window.doLogout = function() {
   currentUser = null; currentPlayer = null;
-  document.getElementById('header-sub').textContent = 'ورود به بازی';
+  document.getElementById('header-sub').textContent = 'مرکز فرماندهی';
   showScreen('screen-login');
 };
 
-// FACTION
+// FACTION SELECT SECTIONS
 window.showContinents = function() {
   const list = document.getElementById('continent-list');
-  list.innerHTML = '';
-  Object.keys(CONTINENTS).forEach(c => {
-    const btn = document.createElement('button');
-    btn.className = 'list-btn';
-    btn.textContent = c;
-    btn.onclick = () => showCountries(c);
-    list.appendChild(btn);
-  });
-  showScreen('screen-continent');
-};
-
-function showCountries(continent) {
-  document.getElementById('country-title').textContent = 'کشورهای ' + continent;
-  const list = document.getElementById('country-list');
-  list.innerHTML = '';
-  CONTINENTS[continent].forEach(c => {
-    const btn = document.createElement('button');
-    btn.className = 'country-btn';
-    btn.textContent = c;
-    btn.onclick = () => selectFaction(c, 'country');
-    list.appendChild(btn);
-  });
-  showScreen('screen-country');
-}
-
-window.showGroups = function() {
-  const list = document.getElementById('group-list');
-  list.innerHTML = '';
-  GROUPS.forEach(g => {
-    const btn = document.createElement('button');
-    btn.className = 'country-btn';
-    btn.textContent = g;
-    btn.onclick = () => selectFaction(g, 'group');
-    list.appendChild(btn);
-  });
-  showScreen('screen-group');
-};
-
-async function selectFaction(faction, type) {
-  currentPlayer.faction = faction;
-  currentPlayer.factionType = type;
-  await savePlayer();
-  updateStats();
-  notify('✅ ' + faction + ' ثبت شد!');
-  showScreen('screen-main');
-}
-
-// SHOP
-window.initShop = function() {
-  const sel = document.getElementById('shop-category');
-  sel.innerHTML = '<option value="">انتخاب دسته...</option>';
-  Object.keys(MILITARY).forEach(cat => {
-    const opt = document.createElement('option');
-    opt.value = cat; opt.textContent = cat;
-    sel.appendChild(opt);
-  });
-  document.getElementById('shop-items').innerHTML = '';
-};
-
-window.renderShopItems = function() {
-  const cat = document.getElementById('shop-category').value;
-  const container = document.getElementById('shop-items');
-  if (!cat) { container.innerHTML = ''; return; }
-  container.innerHTML = '';
-  Object.entries(MILITARY[cat]).forEach(([name, price]) => {
-    const owned = (currentPlayer.military || {})[name] || 0;
-    const div = document.createElement('div');
-    div.className = 'shop-item';
-    div.innerHTML = `<div><div class="item-name">${name}</div>${owned > 0 ? `<div style="color:var(--text-dim);font-size:10px;">دارید: ${owned} عدد</div>` : ''}</div><div style="display:flex;align-items:center;gap:10px;"><span class="item-price">${price.toLocaleString()} ₿</span><button class="btn btn-sm" onclick="buyItem('${name}',${price})">خرید</button></div>`;
-    container.appendChild(div);
-  });
-};
-
-window.buyItem = async function(name, price) {
-  if ((currentPlayer.money || 0) < price) { notify('❌ پول کافی نداری!'); return; }
-  currentPlayer.money -= price;
-  if (!currentPlayer.military) currentPlayer.military = {};
-  currentPlayer.military[name] = (currentPlayer.military[name] || 0) + 1;
-  await savePlayer();
-  updateStats();
-  notify('✅ ' + name + ' خریدی!');
-  renderShopItems();
-};
-
-// MINES
+// MINES LOGIC
 window.renderMines = function() {
   const list = document.getElementById('mines-list');
   list.innerHTML = '';
   Object.entries(MINES).forEach(([name, data]) => {
-    const owned = (currentPlayer.mines || {})[name] || 0;
+    const owned = (currentPlayer.mines  {})[name]  0;
     const div = document.createElement('div');
     div.className = 'mine-card';
-    div.innerHTML = `<div class="mine-name">${name}</div><div class="mine-info">قیمت: ${data.price.toLocaleString()} ₿ &nbsp;|&nbsp; درآمد: ${data.income > 0 ? data.income.toLocaleString() + ' ₿' : data.gold + ' طلا'}${owned > 0 ? ` &nbsp;|&nbsp; <span style="color:var(--gold)">دارید: ${owned}</span>` : ''}</div><button class="btn btn-sm" onclick="buyMine('${name}')">خرید (${data.price.toLocaleString()} ₿)</button>`;
+    div.innerHTML = 
+      <div class="mine-name">${name}</div>
+      <div class="mine-info">قیمت خرید: ${data.price.toLocaleString()} ₿ &nbsp;|&nbsp; درآمد هر ۲۴ ساعت: ${data.income > 0 ? data.income.toLocaleString() + ' ₿' : data.gold + ' واحد طلا'}${owned > 0 ?  &nbsp;|&nbsp; <span style="color:var(--gold)">تعداد شما: ${owned}</span> : ''}</div>
+      <button class="btn btn-sm" onclick="buyMine('${name}')">خرید ریسورس (${data.price.toLocaleString()} ₿)</button>;
     list.appendChild(div);
   });
 };
 
 window.buyMine = async function(name) {
   const price = MINES[name].price;
-  if ((currentPlayer.money || 0) < price) { notify('❌ پول کافی نداری!'); return; }
+  if ((currentPlayer.money || 0) < price) { notify(':x: بودجه کشورت برای خرید این منبع درآمد کافی نیست!'); return; }
   currentPlayer.money -= price;
   if (!currentPlayer.mines) currentPlayer.mines = {};
   currentPlayer.mines[name] = (currentPlayer.mines[name] || 0) + 1;
   await savePlayer();
   updateStats();
-  notify('✅ ' + name + ' خریدی!');
+  notify(':white_check_mark: سند ' + name + ' صادر شد و به منابع درآمدی شما اضافه گردید.');
   renderMines();
 };
 
-// INCOME
+// AUTO DAILY INCOME CLAIM
 window.collectIncome = async function() {
   const now = Date.now();
   const last = currentPlayer.lastIncome || 0;
   const elapsed = (now - last) / 1000;
+  
   if (elapsed < 86400 && last > 0) {
-    const rem = Math.ceil((86400 - elapsed) / 3600);
-    notify('⏳ ' + rem + ' ساعت دیگه بیا!'); return;
+    const remSeconds = 86400 - elapsed;
+    const remHours = Math.floor(remSeconds / 3600);
+    const remMinutes = Math.floor((remSeconds % 3600) / 60);
+    notify(⏳ خزانه هنوز شارژ نشده! ${remHours} ساعت و ${remMinutes} دقیقه دیگر مراجعه کنید.); 
+    return;
   }
+  
   let totalMoney = 0, totalGold = 0;
   Object.entries(currentPlayer.mines || {}).forEach(([name, count]) => {
     totalMoney += MINES[name].income * count;
     totalGold += MINES[name].gold * count;
   });
-  if (totalMoney === 0 && totalGold === 0) { notify('معدنی نداری! اول معدن بخر.'); return; }
+  
+  if (totalMoney === 0 && totalGold === 0) { notify(':x: شما هیچ منبع یا معدنی برای تولید درآمد ندارید!'); return; }
+  
   currentPlayer.money = (currentPlayer.money || 0) + totalMoney;
   currentPlayer.gold = (currentPlayer.gold || 0) + totalGold;
   currentPlayer.lastIncome = now;
+  
   await savePlayer();
   updateStats();
-  notify('✅ +' + totalMoney.toLocaleString() + ' ₿ | +' + totalGold + ' طلا');
+  notify(✅ واریز شد: +${totalMoney.toLocaleString()} بیت‌کوین | +${totalGold} شمش طلا);
 };
 
-// PROFILE
+// PROFILE BUILDER
 window.showProfile = function() {
   const c = document.getElementById('profile-content');
   let minesHTML = '';
@@ -551,30 +600,30 @@ window.showProfile = function() {
     if (!d) return;
     totalIncome += d.income * count;
     totalGold += d.gold * count;
-    minesHTML += `<div class="profile-row"><span class="label">${name}</span><span class="value">${count} عدد</span></div>`;
+    minesHTML += <div class="profile-row"><span class="label">${name}</span><span class="value">${count} حلقه/معدن</span></div>;
   });
   let milHTML = '';
   Object.entries(currentPlayer.military || {}).forEach(([name, count]) => {
-    milHTML += `<div class="profile-row"><span class="label">${name}</span><span class="value">${count} عدد</span></div>`;
+    milHTML += <div class="profile-row"><span class="label">${name}</span><span class="value">${count} عدد</span></div>;
   });
   c.innerHTML = `
-    <div class="profile-row"><span class="label">نام کاربری</span><span class="value">${currentUser}</span></div>
-    <div class="profile-row"><span class="label">طرف</span><span class="value">${currentPlayer.faction || '—'}</span></div>
-    <div class="profile-row"><span class="label">بیت‌کوین</span><span class="value" style="color:var(--gold)">${(currentPlayer.money||0).toLocaleString()} ₿</span></div>
-    <div class="profile-row"><span class="label">طلا</span><span class="value" style="color:var(--gold)">${currentPlayer.gold||0} 🥇</span></div>
-    <div class="profile-row"><span class="label">درآمد روزانه</span><span class="value">${totalIncome.toLocaleString()} ₿ + ${totalGold} طلا</span></div>
-    <div class="section-title">معادن</div>
-    ${minesHTML || '<div style="color:var(--text-dim);font-size:11px;padding:8px 0">معدنی ندارید</div>'}
-    <div class="section-title">تجهیزات</div>
-    ${milHTML || '<div style="color:var(--text-dim);font-size:11px;padding:8px 0">تجهیزاتی ندارید</div>'}
-  `;
+    <div class="profile-row"><span class="label">نام فرمانده (کاربر)</span><span class="value">${currentUser}</span></div>
+    <div class="profile-row"><span class="label">قلمرو زیر سلطه</span><span class="value">${currentPlayer.faction || '—'}</span></div>
+    <div class="profile-row"><span class="label">کل نقدینگی</span><span class="value" style="color:var(--gold)">${(currentPlayer.money||0).toLocaleString()} ₿</span></div>
+    <div class="profile-row"><span class="label">ذخایر طلای ملی</span><span class="value" style="color:var(--gold)">${currentPlayer.gold||0} 🥇</span></div>
+    <div class="profile-row"><span class="label">نرخ استخراج روزانه</span><span class="value">${totalIncome.toLocaleString()} ₿ + ${totalGold} طلا</span></div>
+<div class="section-title">صنایع و معادن تحت کنترل</div>
+    ${minesHTML || '<div style="color:var(--text-dim);font-size:11px;padding:8px 0">هنوز منبع درآمدی خریداری نکرده‌اید.</div>'}
+    <div class="section-title">اردوی تسلیحات و ارتش</div>
+    ${milHTML || '<div style="color:var(--text-dim);font-size:11px;padding:8px 0">انبار نظامی ارتش شما خالی است.</div>'}
+  ;
   showScreen('screen-profile');
 };
 
-// ADMIN
+// ADMIN OPERATIONS
 async function loadAdminPanel() {
   const container = document.getElementById('admin-players');
-  container.innerHTML = '<div class="loading">در حال بارگذاری...</div>';
+  container.innerHTML = '<div class="loading">در حال فراخوانی اطلاعات دیتابیس...</div>';
   try {
     const snap = await getDocs(collection(db, 'players'));
     container.innerHTML = '';
@@ -583,12 +632,13 @@ async function loadAdminPanel() {
       const p = d.data();
       const div = document.createElement('div');
       div.className = 'admin-row';
-      div.innerHTML = `<div class="player-name">${d.id} — ${p.faction || 'بدون طرف'}</div><div class="player-info">💰 ${(p.money||0).toLocaleString()} ₿ | 🥇 ${p.gold||0} طلا</div><div style="margin-top:8px;"><button class="btn btn-sm" onclick="adminEdit('${d.id}',${p.money||0},${p.gold||0})">ویرایش</button></div>`;
+      div.innerHTML = <div class="player-name">کاربر: ${d.id} &nbsp;|&nbsp; قلمرو: ${p.faction  'انتخاب نکرده'}</div><div class="player-info">:moneybag: ${(p.money0).toLocaleString()} ₿ | 🥇 ${p.gold0} طلا</div><div style="margin-top:8px;"><button class="btn btn-sm" onclick="adminEdit('${d.id}',${p.money0},${p.gold||0})">دستور ویرایش دارایی</button></div>`;
       container.appendChild(div);
     });
-    if (!container.children.length) container.innerHTML = '<div style="color:var(--text-dim);font-size:12px">هنوز بازیکنی نیست</div>';
-  } catch(e) { container.innerHTML = '<div class="error">خطا در بارگذاری</div>'; }
+    if (!container.children.length) container.innerHTML = '<div style="color:var(--text-dim);font-size:12px">هیچ بازیکنی ثبت نام نکرده است.</div>';
+  } catch(e) { container.innerHTML = '<div class="error">خطا در دریافت لیست بازیکنان از کلود فایربیس</div>'; }
 }
+window.loadAdminPanel = loadAdminPanel;
 
 window.adminEdit = function(uid, money, gold) {
   adminEditTarget = uid;
@@ -601,23 +651,26 @@ window.adminEdit = function(uid, money, gold) {
 window.adminSetMoney = async function() {
   if (!adminEditTarget) return;
   const val = parseInt(document.getElementById('admin-money-val').value);
-  if (isNaN(val)) { notify('❌ عدد وارد کن'); return; }
-  await updateDoc(doc(db, 'players', adminEditTarget), { money: val });
-  notify('✅ پول ' + adminEditTarget + ' به ' + val.toLocaleString() + ' تغییر کرد');
-  loadAdminPanel();
+  if (isNaN(val)) { notify(':x: لطفاً مقدار عددی معتبر وارد کنید'); return; }
+  try {
+    await updateDoc(doc(db, 'players', adminEditTarget), { money: val });
+    notify(':white_check_mark: بودجه بیت‌کوین ' + adminEditTarget + ' با موفقیت به ' + val.toLocaleString() + ' تغییر یافت.');
+    loadAdminPanel();
+  } catch(e) { notify(':x: خطا در آپدیت دیتابیس'); }
 };
 
 window.adminSetGold = async function() {
   if (!adminEditTarget) return;
   const val = parseInt(document.getElementById('admin-gold-val').value);
-  if (isNaN(val)) { notify('❌ عدد وارد کن'); return; }
-  await updateDoc(doc(db, 'players', adminEditTarget), { gold: val });
-  notify('✅ طلای ' + adminEditTarget + ' به ' + val + ' تغییر کرد');
-  loadAdminPanel();
+  if (isNaN(val)) { notify(':x: لطفاً مقدار عددی معتبر وارد کنید'); return; }
+  try {
+    await updateDoc(doc(db, 'players', adminEditTarget), { gold: val });
+    notify(':white_check_mark: ذخیره طلای ملی ' + adminEditTarget + ' به ' + val + ' تغییر یافت.');
+    loadAdminPanel();
+  } catch(e) { notify(':x: خطا در آپدیت دیتابیس'); }
 };
 
-// INIT
-document.getElementById('header-sub').textContent = 'ورود به بازی';
+// INITIALIZATION
 showScreen('screen-login');
 initShop();
 </script>
