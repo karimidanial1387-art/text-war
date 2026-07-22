@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Text War — مرکز فرماندهی بدون تحریم</title>
+<title>XCiew | Text War — مرکز فرماندهی بدون تحریم</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Sans+Arabic:wght@300;400;600;700&display=swap');
   :root {
@@ -12,11 +12,11 @@
     --text: #d4c5a0; --text-dim: #7a6f5a; --border: #2a2a3a;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--dark); color: var(--text); font-family: 'Noto Sans Arabic', sans-serif; min-height: 100vh; }
+  body { background: var(--dark); color: var(--text); font-family: 'Noto Sans Arabic', sans-serif; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
   .header { text-align: center; padding: 30px 20px 16px; border-bottom: 1px solid var(--border); }
   .header h1 { font-family: 'Cinzel', serif; font-size: 26px; color: var(--gold); letter-spacing: 4px; text-shadow: 0 0 30px rgba(201,168,76,0.4); }
   .header p { color: var(--text-dim); font-size: 11px; margin-top: 5px; letter-spacing: 2px; }
-  .container { max-width: 860px; margin: 0 auto; padding: 24px 16px; }
+  .container { max-width: 860px; margin: 0 auto; padding: 24px 16px; width: 100%; flex-grow: 1; }
   .screen { display: none; }
   .screen.active { display: block; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
@@ -86,12 +86,26 @@
   .admin-edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
   .admin-item-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 11px; }
   @media(max-width:768px){ .admin-edit-grid { grid-template-columns: 1fr; } }
+
+  /* FOOTER & LAWS MODAL */
+  .footer { text-align: center; padding: 18px 10px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 11px; letter-spacing: 1px; }
+  .terms-text { font-size: 11px; color: var(--text-dim); text-align: center; margin-top: 10px; }
+  .terms-link { color: var(--gold); text-decoration: underline; cursor: pointer; font-weight: 600; }
+  .terms-link:hover { color: var(--gold-light); }
+  
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 15px; }
+  .modal-overlay.active { display: flex; }
+  .modal-content { background: var(--dark2); border: 1px solid var(--gold); border-radius: 4px; padding: 22px; max-width: 450px; width: 100%; position: relative; }
+  .modal-title { font-family: 'Cinzel', serif; color: var(--gold); font-size: 15px; margin-bottom: 15px; text-align: center; }
+  .modal-body { font-size: 12px; color: var(--text); line-height: 1.8; text-align: right; }
+  .modal-body ol { padding-right: 18px; margin-top: 8px; }
+  .modal-body li { margin-bottom: 8px; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>TEXT WAR</h1>
+  <h1>XCiew | Text War</h1>
   <p id="header-sub">مرکز فرماندهی</p>
 </div>
 
@@ -125,6 +139,11 @@
         <div id="reg-success" class="success" style="display:none"></div>
         <button class="btn btn-block" onclick="doRegister()">ثبت‌نام</button>
       </div>
+
+      <div class="terms-text">
+        ورود به منزله قبول کردن <span class="terms-link" onclick="toggleRulesModal(true)">قوانین</span> بازی است.
+      </div>
+
       <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);text-align:center;">
         <button class="btn btn-sm" onclick="doAdminLogin()" style="opacity:.5;font-size:11px;">ورود ادمین</button>
       </div>
@@ -308,6 +327,25 @@
 
 </div>
 
+<!-- RULES MODAL -->
+<div class="modal-overlay" id="rules-modal">
+  <div class="modal-content">
+    <div class="modal-title">📜 قوانین و مقررات بازی</div>
+    <div class="modal-body">
+      <ol>
+        <li>در صورت پیدا کردن باگ آن را به ادمین گزارش دهید و با این کار با توجه به میزان اهمیت باگ به شما مقدار قابل توجهی پاداش داده خواهد شد.</li>
+        <li>در صورت استفاده از باگ، در صورت شناسایی کشور شما حذف خواهد شد.</li>
+        <li>اطلاعات شما در بازی در هیچ صورت به پلیرها داده نمی‌شود.</li>
+      </ol>
+    </div>
+    <button class="btn btn-block" style="margin-top:15px;" onclick="toggleRulesModal(false)">متوجه شدم</button>
+  </div>
+</div>
+
+<div class="footer">
+  تولید و توسعه توسط تیم XCiew
+</div>
+
 <!-- Supabase SDK & Game Logic -->
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
@@ -319,7 +357,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ADMIN_USER = "admin";
 const ADMIN_PASS = "admin1234";
-const INVITE_CODE = "war2026"; // کد امنیتی ساخت اکانت
+const INVITE_CODE = "war2026";
 const GOLD_RATE = 1000; 
 
 const CONTINENTS = {
@@ -338,7 +376,6 @@ const MINES = {
   "چاه نفت 🛢️": {price:10000,income:7000,gold:0}
 };
 
-// ویرایش تسلیحات: قیمت‌ها به صورت ۱ عددی (تکی) تنظیم شده‌اند
 const MILITARY = {
   "سربازها 🪖": {"سرباز عادی":1,"تکاور":4,"آرپیجی‌زن":5,"کماندو":6,"فرمانده":200},
   "نیروی زمینی 🚗": {"تانک T-72":40,"تانک T-90":50,"تانک لئوپارد 2":30,"تانک آبرامز X":100,"مرزبان":1},
@@ -359,6 +396,13 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 window.showScreen = showScreen;
+
+function toggleRulesModal(show) {
+  const modal = document.getElementById('rules-modal');
+  if (show) modal.classList.add('active');
+  else modal.classList.remove('active');
+}
+window.toggleRulesModal = toggleRulesModal;
 
 function notify(msg) {
   document.querySelectorAll('.notif').forEach(n => n.remove());
@@ -676,7 +720,6 @@ async function adminOpenEdit(uid) {
   document.getElementById('admin-money-val').value = data.money || 0;
   document.getElementById('admin-gold-val').value = data.gold || 0;
   
-  // RENDER ADMIN MINES EDIT (تغییر به باکس کادری برای تایپ عدد)
   const minesContainer = document.getElementById('admin-mines-container');
   minesContainer.innerHTML = '';
   Object.keys(MINES).forEach(mName => {
@@ -692,7 +735,6 @@ async function adminOpenEdit(uid) {
     minesContainer.appendChild(div);
   });
 
-  // RENDER ADMIN MILITARY EDIT (تغییر کامل دکمه‌ها به کادر عددی مستقیم)
   const milContainer = document.getElementById('admin-military-container');
   milContainer.innerHTML = '';
   Object.entries(MILITARY).forEach(([cat, items]) => {
@@ -725,7 +767,6 @@ window.adminUpdateBase = async function(field) {
   } catch(e) { notify('❌ خطا در ذخیره دیتابیس'); }
 };
 
-// تابع جدید اختصاصی برای ذخیره دستی مقادیر فیلدها از کادر متنی ادمین
 window.adminSaveSingleItem = async function(type, itemName, inputId) {
   if(!adminEditTarget) return;
   const newVal = parseInt(document.getElementById(inputId).value);
