@@ -97,7 +97,7 @@
   .lb-info { flex-grow: 1; padding: 0 10px; }
   .lb-name { font-size: 13px; font-weight: 600; color: var(--text); }
   .lb-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-  .lb-score { font-size: 13px; font-weight: 700; color: var(--gold-light); text-align: left; }
+  .lb-badge { font-size: 11px; font-weight: 600; color: var(--gold); border: 1px solid var(--gold); padding: 2px 8px; border-radius: 10px; background: rgba(201,168,76,0.1); }
 
   /* FOOTER & LAWS MODAL */
   .footer { text-align: center; padding: 18px 10px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 11px; letter-spacing: 1px; }
@@ -290,7 +290,7 @@
   <div class="screen" id="screen-leaderboard">
     <button class="back-btn" onclick="showScreen('screen-main')">← برگشت</button>
     <div class="card">
-      <div class="card-title">🏆 جدول رده‌بندی جهانی کشورها</div>
+      <div class="card-title">🏆 ۳ قدرت برتر جهان</div>
       <div class="tab-bar">
         <button class="tab active" id="lb-tab-econ" onclick="switchLbTab('econ')">💰 قدرت اقتصادی</button>
         <button class="tab" id="lb-tab-mili" onclick="switchLbTab('mili')">⚔️ قدرت نظامی</button>
@@ -763,15 +763,26 @@ function renderLeaderboard() {
     list.sort((a, b) => b.militaryPower - a.militaryPower);
   }
 
+  // LIMIT TO TOP 3 ONLY
+  const top3List = list.slice(0, 3);
+
   container.innerHTML = '';
-  list.forEach((item, index) => {
+  top3List.forEach((item, index) => {
     const rank = index + 1;
     let rankClass = '';
-    if (rank === 1) rankClass = 'lb-rank-1';
-    else if (rank === 2) rankClass = 'lb-rank-2';
-    else if (rank === 3) rankClass = 'lb-rank-3';
+    let badgeTitle = '';
+    
+    if (rank === 1) {
+      rankClass = 'lb-rank-1';
+      badgeTitle = lbCurrentMode === 'econ' ? '🥇 ابرقدرت اقتصادی' : '🥇 ابرقدرت نظامی';
+    } else if (rank === 2) {
+      rankClass = 'lb-rank-2';
+      badgeTitle = '🥈 رتبه دوم جهانی';
+    } else if (rank === 3) {
+      rankClass = 'lb-rank-3';
+      badgeTitle = '🥉 رتبه سوم جهانی';
+    }
 
-    const scoreVal = lbCurrentMode === 'econ' ? item.econPower : item.militaryPower;
     const isSelf = item.username === currentUser;
 
     const div = document.createElement('div');
@@ -784,8 +795,8 @@ function renderLeaderboard() {
         <div class="lb-name">${item.faction} ${isSelf ? '<span style="color:var(--gold);font-size:10px;">(شما)</span>' : ''}</div>
         <div class="lb-sub">فرمانده: ${item.username}</div>
       </div>
-      <div class="lb-score">
-        ${scoreVal.toLocaleString()} <span style="font-size:10px;font-weight:normal;color:var(--text-dim);">${lbCurrentMode === 'econ' ? '₿ ارزش' : 'قدرت'}</span>
+      <div class="lb-badge">
+        ${badgeTitle}
       </div>
     `;
     container.appendChild(div);
