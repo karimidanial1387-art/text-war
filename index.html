@@ -99,6 +99,11 @@
   .lb-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
   .lb-badge { font-size: 11px; font-weight: 600; color: var(--gold); border: 1px solid var(--gold); padding: 2px 8px; border-radius: 10px; background: rgba(201,168,76,0.1); }
 
+  /* MAP STYLES */
+  .map-box { text-align: center; background: var(--dark3); border: 1px solid var(--border); border-radius: 4px; padding: 10px; overflow: hidden; }
+  .map-img { width: 100%; max-width: 100%; height: auto; border-radius: 4px; border: 1px solid rgba(201,168,76,0.2); transition: transform 0.3s; }
+  .map-img:hover { transform: scale(1.01); }
+
   /* FOOTER & LAWS MODAL */
   .footer { text-align: center; padding: 18px 10px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 11px; letter-spacing: 1px; }
   .terms-text { font-size: 11px; color: var(--text-dim); text-align: center; margin-top: 10px; }
@@ -241,7 +246,10 @@
       <div class="menu-btn" onclick="collectIncome()">
         <div class="menu-icon">💰</div><div class="menu-label">دریافت درآمد خودکار</div>
       </div>
-      <div class="menu-btn" onclick="loadLeaderboard(); showScreen('screen-leaderboard')" style="grid-column: span 2;">
+      <div class="menu-btn" onclick="showScreen('screen-map')">
+        <div class="menu-icon">🗺️</div><div class="menu-label">نقشه زنده جهان</div>
+      </div>
+      <div class="menu-btn" onclick="loadLeaderboard(); showScreen('screen-leaderboard')">
         <div class="menu-icon">🏆</div><div class="menu-label">جدول رده‌بندی کشورها</div>
       </div>
       <div class="menu-btn" onclick="showProfile()" style="grid-column: span 2;">
@@ -282,6 +290,21 @@
         <label style="font-size:11px; color:var(--text-dim);">تعداد طلای فروشی:</label>
         <input type="number" id="ex-gold-input" min="1" value="1" style="margin-top:5px;">
         <button class="btn btn-block" onclick="sellGold()">فروش طلا و دریافت نقدینگی</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div class="screen" id="screen-map">
+    <button class="back-btn" onclick="showScreen('screen-main')">← برگشت به منو</button>
+    <div class="card">
+      <div class="card-title">🗺️ نقشه آنلاین و قلمرو کشورها</div>
+      <p style="font-size:11px; color:var(--text-dim); margin-bottom:14px;">آخرین تغییرات قلمروها و فتح کشورها توسط ستاد کل ارتش ثبت شده است.</p>
+      <div class="map-box">
+        <img src="images/map.png" alt="نقشه زنده بازی XCiew" class="map-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x450/12121a/c9a84c?text=%D9%86%D9%82%D8%B4%D9%87+%D9%87%D9%86%D9%88%D8%B2+%D8%A2%D9%BE%D9%84%D9%88%D8%AF+%D9%86%D8%B4%D8%AF%D9%87+%D8%A7%D8%B3%D8%AA';">
+      </div>
+      <div style="margin-top:10px; text-align:center;">
+        <a href="images/map.png" target="_blank" class="terms-link" style="font-size:11px;">🔎 مشاهده عکس نقشه با کیفیت اصلی و زوم</a>
       </div>
     </div>
   </div>
