@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XCiew | Text War </title>
+<title>XCiew | Text War — مرکز فرماندهی</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Sans+Arabic:wght@300;400;600;700&display=swap');
   :root {
@@ -235,7 +235,7 @@
     </div>
     <div class="grid-2">
       <div class="menu-btn" onclick="showScreen('screen-shop');initShop()">
-        <div class="menu-icon">🛒</div><div class="menu-label">فروشگاه نظامی  </div>
+        <div class="menu-icon">🛒</div><div class="menu-label">فروشگاه نظامی (تکی)</div>
       </div>
       <div class="menu-btn" onclick="showScreen('screen-mines');renderMines()">
         <div class="menu-icon">⛏️</div><div class="menu-label">مدیریت معادن</div>
@@ -262,7 +262,7 @@
   <div class="screen" id="screen-shop">
     <button class="back-btn" onclick="showScreen('screen-main')">← برگشت</button>
     <div class="card">
-      <div class="card-title">🛒 فروشگاه تسلیحات</div>
+      <div class="card-title">🛒 فروشگاه تسلیحات (خرید به تعداد دلخواه واحد)</div>
       <select id="shop-category" onchange="renderShopItems()">
         <option value="">انتخاب دسته...</option>
       </select>
@@ -357,6 +357,17 @@
           <input type="number" id="admin-gold-val">
           <button class="btn btn-sm btn-block" onclick="adminUpdateBase('gold')">به‌روزرسانی طلا</button>
         </div>
+      </div>
+
+      <!-- NEW SECTION: ADD INVENTION -->
+      <div style="border-bottom:1px solid var(--border); padding:15px 0; margin-bottom:15px;">
+        <div class="section-title">💡 ثبت اختراع نظامی اختصاصی برای این کشور</div>
+        <div class="grid-2">
+          <input type="text" id="admin-inv-name" placeholder="نام اختراع (مثلاً: پهپاد صاعقه X)">
+          <input type="number" id="admin-inv-price" placeholder="قیمت هر واحد (بیت‌کوین)">
+        </div>
+        <button class="btn btn-block" onclick="adminAddInvention()"> ثبت اختراع جدید برای این کشور</button>
+        <div id="admin-inventions-list" style="margin-top:10px;"></div>
       </div>
 
       <div class="admin-edit-grid">
@@ -489,6 +500,7 @@ async function savePlayer() {
     gold: currentPlayer.gold,
     mines: currentPlayer.mines,
     military: currentPlayer.military,
+    inventions: currentPlayer.inventions || {},
     last_income: currentPlayer.last_income
   }).eq('username', currentUser);
 }
@@ -525,6 +537,8 @@ window.doLogin = async function() {
     
     currentUser = user;
     currentPlayer = data;
+    if (!currentPlayer.inventions) currentPlayer.inventions = {};
+    
     document.getElementById('header-sub').textContent = 'مرکز فرماندهی — ' + user;
     if (!currentPlayer.faction) showScreen('screen-faction');
     else { updateStats(); showScreen('screen-main'); }
@@ -550,7 +564,7 @@ window.doRegister = async function() {
     if (data) { err.textContent = 'این نام کاربری قبلاً ثبت شده'; err.style.display = 'block'; return; }
     
     const { error } = await supabase.from('players').insert([{ 
-      username: user, password: pass, money: 85000, gold: 0, mines: {}, military: {}, last_income: 0, faction: '', faction_type: '' 
+      username: user, password: pass, money: 85000, gold: 0, mines: {}, military: {}, inventions: {}, last_income: 0, faction: '', faction_type: '' 
     }]);
     if(error) throw error;
     suc.textContent = '✅ ثبت‌نام موفق! حالا از تب ورود وارد شو.'; suc.style.display = 'block';
@@ -624,9 +638,21 @@ async function selectFaction(faction, type) {
 window.initShop = function() {
   const sel = document.getElementById('shop-category');
   sel.innerHTML = '<option value="">انتخاب دسته تجهیزات...</option>';
+  
+  // Standard Categories
   Object.keys(MILITARY).forEach(cat => {
     const opt = document.createElement('option'); opt.value = cat; opt.textContent = cat; sel.appendChild(opt);
   });
+
+  // Check if player has personal inventions
+  const invs = currentPlayer.inventions || {};
+  if (Object.keys(invs).length > 0) {
+    const opt = document.createElement('option');
+    opt.value = "💡 اختراعات اختصاصی";
+    opt.textContent = "💡 اختراعات اختصاصی";
+    sel.appendChild(opt);
+  }
+
   document.getElementById('shop-items').innerHTML = '';
 };
 
@@ -635,7 +661,16 @@ window.renderShopItems = function() {
   const container = document.getElementById('shop-items');
   if (!cat) { container.innerHTML = ''; return; }
   container.innerHTML = '';
-  Object.entries(MILITARY[cat]).forEach(([name, price]) => {
+
+  let itemsToRender = {};
+
+  if (cat === "💡 اختراعات اختصاصی") {
+    itemsToRender = currentPlayer.inventions || {};
+  } else {
+    itemsToRender = MILITARY[cat] || {};
+  }
+
+  Object.entries(itemsToRender).forEach(([name, price]) => {
     const owned = (currentPlayer.military || {})[name] || 0;
     const div = document.createElement('div');
     div.className = 'shop-item';
@@ -678,7 +713,7 @@ window.renderMines = function() {
     div.className = 'mine-card';
     div.innerHTML = `
       <div class="mine-name">${name}</div>
-      <div class="mine-info">قیمت: ${data.price.toLocaleString()} ₿ &nbsp;|&nbsp; درآمد: ${data.income > 0 ? data.income.toLocaleString() + ' ₿' : data.gold + ' طلا'}${owned > 0 ? ` &nbsp;|&nbsp; <span style="color:var(--gold)">تعداد شما: ${owned}</span>` : ''}</div>
+      <div class="mine-info">قیمت: ${data.price.toLocaleString()} ₿ &nbsp;|&nbsp; درآمد: ${data.income > 0 ? (data.income * 4).toLocaleString() + ' ₿' : data.gold + ' طلا'}${owned > 0 ? ` &nbsp;|&nbsp; <span style="color:var(--gold)">تعداد شما: ${owned}</span>` : ''}</div>
       <button class="btn btn-sm" onclick="buyMine('${name}')">خرید (${data.price.toLocaleString()} ₿)</button>`;
     list.appendChild(div);
   });
@@ -721,7 +756,7 @@ window.collectIncome = async function() {
     notify(`⏳ خزانه خالیست! ${Math.floor(rem/3600)} ساعت و ${Math.floor((rem%3600)/60)} دقیقه دگر صبر کنید.`); return;
   }
   let m = 0, g = 0;
-  Object.entries(currentPlayer.mines || {}).forEach(([name, count]) => { m += MINES[name].income * count; g += MINES[name].gold * count; });
+  Object.entries(currentPlayer.mines || {}).forEach(([name, count]) => { m += (MINES[name].income * 4) * count; g += MINES[name].gold * count; });
   if (m === 0 && g === 0) { notify('❌ هیچ معدنی برای استخراج درآمد نداری!'); return; }
   currentPlayer.money = (currentPlayer.money || 0) + m; currentPlayer.gold = (currentPlayer.gold || 0) + g; currentPlayer.last_income = now;
   await savePlayer(); updateStats(); notify(`✅ واریز درآمد: +${m.toLocaleString()} ₿ | +${g} طلا`);
@@ -755,19 +790,19 @@ function renderLeaderboard() {
     return;
   }
 
-  // CALCULATE POWER FOR EACH PLAYER
   const list = lbCacheData.map(p => {
-    // 1. Econ Power = Bitcoin + (Gold * 1000) + Mines Total Value
-    let minesValue = 0;
+    // 1. Econ Power = Cash + (Gold * 1000) + (Mines Income * 4)
+    let mineIncome = 0;
     Object.entries(p.mines || {}).forEach(([mName, count]) => {
-      if (MINES[mName]) minesValue += MINES[mName].price * count;
+      if (MINES[mName]) mineIncome += MINES[mName].income * count;
     });
-    const econPower = (p.money || 0) + ((p.gold || 0) * 1000) + minesValue;
+    const econPower = (p.money || 0) + ((p.gold || 0) * 1000) + (mineIncome * 4);
 
-    // 2. Military Power = Sum of all Units Values
+    // 2. Military Power = Sum of all Purchased Units Price (including Inventions)
     let militaryPower = 0;
+    const invPrices = p.inventions || {};
     Object.entries(p.military || {}).forEach(([unitName, count]) => {
-      const price = MILITARY_PRICES[unitName] || 0;
+      const price = MILITARY_PRICES[unitName] || invPrices[unitName] || 0;
       militaryPower += price * count;
     });
 
@@ -779,14 +814,12 @@ function renderLeaderboard() {
     };
   });
 
-  // SORT BASED ON SELECTED MODE
   if (lbCurrentMode === 'econ') {
     list.sort((a, b) => b.econPower - a.econPower);
   } else {
     list.sort((a, b) => b.militaryPower - a.militaryPower);
   }
 
-  // LIMIT TO TOP 3 ONLY
   const top3List = list.slice(0, 3);
 
   container.innerHTML = '';
@@ -831,7 +864,7 @@ window.showProfile = function() {
   let mHTML = '', milHTML = '', tInc = 0, tGold = 0;
   Object.entries(currentPlayer.mines || {}).forEach(([n, count]) => {
     if(count <= 0) return;
-    tInc += MINES[n].income * count; tGold += MINES[n].gold * count;
+    tInc += (MINES[n].income * 4) * count; tGold += MINES[n].gold * count;
     mHTML += `<div class="profile-row"><span class="label">${n}</span><span>${count} عدد</span></div>`;
   });
   Object.entries(currentPlayer.military || {}).forEach(([n, count]) => {
@@ -877,6 +910,9 @@ async function adminOpenEdit(uid) {
   
   document.getElementById('admin-money-val').value = data.money || 0;
   document.getElementById('admin-gold-val').value = data.gold || 0;
+
+  // RENDER EXISTING INVENTIONS
+  renderAdminInventionsList(data.inventions || {});
   
   const minesContainer = document.getElementById('admin-mines-container');
   minesContainer.innerHTML = '';
@@ -914,6 +950,69 @@ async function adminOpenEdit(uid) {
   window.scrollTo({ top: document.getElementById('admin-edit-card').offsetTop, behavior: 'smooth' });
 }
 window.adminOpenEdit = adminOpenEdit;
+
+function renderAdminInventionsList(inventionsObj) {
+  const container = document.getElementById('admin-inventions-list');
+  container.innerHTML = '';
+  if (Object.keys(inventionsObj).length === 0) {
+    container.innerHTML = '<div style="color:var(--text-dim);font-size:11px;">هنوز هیچ اختراعی برای این کشور ثبت نشده است.</div>';
+    return;
+  }
+
+  Object.entries(inventionsObj).forEach(([invName, price]) => {
+    const div = document.createElement('div');
+    div.className = 'admin-item-row';
+    div.innerHTML = `
+      <span>💡 ${invName} (<span style="color:var(--gold)">${price.toLocaleString()} ₿</span>)</span>
+      <button class="btn btn-sm btn-red" style="padding:2px 8px;" onclick="adminDeleteInvention('${invName}')">حذف اختراع</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+window.adminAddInvention = async function() {
+  if (!adminEditTarget) return;
+  const nameInput = document.getElementById('admin-inv-name');
+  const priceInput = document.getElementById('admin-inv-price');
+
+  const name = nameInput.value.trim();
+  const price = parseInt(priceInput.value);
+
+  if (!name || isNaN(price) || price <= 0) {
+    notify('❌ نام اختراع و قیمت معتبر وارد کنید.');
+    return;
+  }
+
+  try {
+    const { data } = await supabase.from('players').select('inventions').eq('username', adminEditTarget).single();
+    let currentInvs = data.inventions || {};
+    currentInvs[name] = price;
+
+    await supabase.from('players').update({ inventions: currentInvs }).eq('username', adminEditTarget);
+
+    nameInput.value = '';
+    priceInput.value = '';
+    renderAdminInventionsList(currentInvs);
+    notify(`💡 اختراع "${name}" با قیمت ${price.toLocaleString()} ₿ ثبت شد.`);
+  } catch(e) {
+    notify('❌ خطا در افزودن اختراع به دیتابیس');
+  }
+};
+
+window.adminDeleteInvention = async function(invName) {
+  if (!adminEditTarget) return;
+  try {
+    const { data } = await supabase.from('players').select('inventions').eq('username', adminEditTarget).single();
+    let currentInvs = data.inventions || {};
+    delete currentInvs[invName];
+
+    await supabase.from('players').update({ inventions: currentInvs }).eq('username', adminEditTarget);
+    renderAdminInventionsList(currentInvs);
+    notify(`🗑️ اختراع "${invName}" حذف گردید.`);
+  } catch(e) {
+    notify('❌ خطا در حذف اختراع');
+  }
+};
 
 window.adminUpdateBase = async function(field) {
   if(!adminEditTarget) return;
