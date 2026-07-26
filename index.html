@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XCiew | Text War </title>
+<title>XCiew | Text War — مرکز فرماندهی بدون تحریم</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Sans+Arabic:wght@300;400;600;700&display=swap');
   :root {
@@ -239,7 +239,7 @@
     </div>
     <div class="grid-2">
       <div class="menu-btn" onclick="showScreen('screen-shop');initShop()">
-        <div class="menu-icon">🛒</div><div class="menu-label">فروشگاه نظامی</div>
+        <div class="menu-icon">🛒</div><div class="menu-label">فروشگاه نظامی (تکی)</div>
       </div>
       <div class="menu-btn" onclick="showScreen('screen-mines');renderMines()">
         <div class="menu-icon">⛏️</div><div class="menu-label">مدیریت معادن</div>
@@ -278,7 +278,7 @@
   <div class="screen" id="screen-mines">
     <button class="back-btn" onclick="showScreen('screen-main')">← برگشت</button>
     <div class="card">
-      <div class="card-title">⛏️ مدیریت معادن</div>
+      <div class="card-title">⛏️ مدیریت معادن (حداکثر ۷ عدد از هر منبع)</div>
       <div id="mines-list"></div>
     </div>
   </div>
@@ -430,6 +430,7 @@ const ADMIN_USER = "admin";
 const ADMIN_PASS = "admin1234";
 const INVITE_CODE = "war2026";
 const GOLD_RATE = 1000; 
+const MAX_MINE_LIMIT = 7; // سقف مجاز برای خرید هر معدن
 
 const CONTINENTS = {
   "اروپا 🌍": ["انگلیس 🇬🇧","فرانسه 🇫🇷","آلمان 🇩🇪","ایتالیا 🇮🇹","اسپانیا 🇪🇸","سوئد 🇸🇪","اوکراین 🇺🇦","لهستان 🇵🇱","یونان 🇬🇷","سوئیس 🇨🇭","پرتغال 🇵🇹","روسیه 🇷🇺","بلاروس 🇧🇾","صربستان 🇷🇸"],
@@ -718,23 +719,34 @@ window.renderMines = function() {
   const list = document.getElementById('mines-list'); list.innerHTML = '';
   Object.entries(MINES).forEach(([name, data]) => {
     const owned = (currentPlayer.mines || {})[name] || 0;
+    const isMax = owned >= MAX_MINE_LIMIT;
     const div = document.createElement('div');
     div.className = 'mine-card';
     div.innerHTML = `
       <div class="mine-name">${name}</div>
-      <div class="mine-info">قیمت: ${data.price.toLocaleString()} ₿ &nbsp;|&nbsp; درآمد: ${data.income > 0 ? data.income.toLocaleString() + ' ₿' : data.gold + ' طلا'}${owned > 0 ? ` &nbsp;|&nbsp; <span style="color:var(--gold)">تعداد شما: ${owned}</span>` : ''}</div>
-      <button class="btn btn-sm" onclick="buyMine('${name}')">خرید (${data.price.toLocaleString()} ₿)</button>`;
+      <div class="mine-info">قیمت: ${data.price.toLocaleString()} ₿ &nbsp;|&nbsp; درآمد: ${data.income > 0 ? data.income.toLocaleString() + ' ₿' : data.gold + ' طلا'}&nbsp;|&nbsp; <span style="color:var(--gold)">تعداد شما: ${owned}/${MAX_MINE_LIMIT}</span></div>
+      <button class="btn btn-sm" onclick="buyMine('${name}')" ${isMax ? 'disabled' : ''}>
+        ${isMax ? 'تکمیل ظرفیت (۷/۷)' : `خرید (${data.price.toLocaleString()} ₿)`}
+      </button>`;
     list.appendChild(div);
   });
 };
 
 window.buyMine = async function(name) {
+  if (!currentPlayer.mines) currentPlayer.mines = {};
+  const currentOwned = currentPlayer.mines[name] || 0;
+  
+  if (currentOwned >= MAX_MINE_LIMIT) {
+    notify('❌ شما حداکثر تعداد مجاز (۷ عدد) از این منبع را خریداری کرده‌اید!');
+    return;
+  }
+
   const price = MINES[name].price;
   if ((currentPlayer.money || 0) < price) { notify('❌ بودجه کافی نداری!'); return; }
+  
   currentPlayer.money -= price;
-  if (!currentPlayer.mines) currentPlayer.mines = {};
-  currentPlayer.mines[name] = (currentPlayer.mines[name] || 0) + 1;
-  await savePlayer(); updateStats(); notify('✅ ' + name + ' خریداری شد.'); renderMines();
+  currentPlayer.mines[name] = currentOwned + 1;
+  await savePlayer(); updateStats(); notify(`✅ ${name} خریداری شد (${currentPlayer.mines[name]}/${MAX_MINE_LIMIT}).`); renderMines();
 };
 
 window.initExchange = function() {
