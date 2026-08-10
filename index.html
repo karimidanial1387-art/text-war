@@ -428,7 +428,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const INVITE_CODE = "war2026";
 const GOLD_RATE = 1000; 
-const MAX_MINE_LIMIT = 7; // سقف مجاز برای خرید هر معدن
+const MAX_MINE_LIMIT = 7; 
 
 const CONTINENTS = {
   "اروپا 🌍": ["انگلیس 🇬🇧","فرانسه 🇫🇷","آلمان 🇩🇪","ایتالیا 🇮🇹","اسپانیا 🇪🇸","سوئد 🇸🇪","اوکراین 🇺🇦","لهستان 🇵🇱","یونان 🇬🇷","سوئیس 🇨🇭","پرتغال 🇵🇹","روسیه 🇷🇺","بلاروس 🇧🇾","صربستان 🇷🇸"],
@@ -529,9 +529,9 @@ Object.values(MILITARY).forEach(cat => {
 });
 
 let currentUser = null;
-let currentPassword = null; // فقط برای فرستادن به توابع امن RPC، دیگه دیتا مستقیم نوشته نمیشه
+let currentPassword = null; 
 let currentPlayer = null;
-let adminPassword = null; // رمز ادمین که فقط سمت دیتابیس چک میشه
+let adminPassword = null; 
 let adminEditTarget = null;
 let lbCacheData = [];
 let lbCurrentMode = 'econ';
@@ -567,10 +567,9 @@ function updateStats() {
   document.getElementById('stat-satisfaction').textContent = (currentPlayer.satisfaction !== undefined ? currentPlayer.satisfaction : 100) + '%';
 }
 
-// به‌جای نوشتن مستقیم روی دیتابیس، فقط دیتای خودمون رو از سرور تازه می‌کنیم
 async function refreshCurrentPlayer() {
   if (!currentUser) return;
-  const { data, error } = await supabase.from('players').select('*').eq('username', currentUser).single();
+  const { data, error } = await supabase.rpc('login_player_secure', { p_username: currentUser, p_password: currentPassword });
   if (!error && data) {
     currentPlayer = data;
     if (!currentPlayer.inventions) currentPlayer.inventions = {};
@@ -581,7 +580,7 @@ async function refreshCurrentPlayer() {
 
 async function getOccupiedFactions() {
   const occupied = [];
-  const { data, error } = await supabase.from('players').select('faction');
+  const { data, error } = await supabase.rpc('get_players_list_secure');
   if (!error && data) {
     data.forEach(p => { if(p.faction) occupied.push(p.faction); });
   }
@@ -601,16 +600,23 @@ window.doLogin = async function() {
   const err = document.getElementById('login-error');
   err.style.display = 'none';
   if (!user || !pass) { err.textContent = 'همه فیلدها رو پر کن'; err.style.display = 'block'; return; }
+  
   try {
     document.getElementById('screen-loading').classList.add('active');
-    const { data, error } = await supabase.from('players').select('*').eq('username', user).single();
+    
+    // استفاده از تابع امن جدید برای لاگین
+    const { data, error } = await supabase.rpc('login_player_secure', { p_username: user, p_password: pass });
+    
     document.getElementById('screen-loading').classList.remove('active');
     
-    if (error || !data) { err.textContent = 'کاربر پیدا نشد'; err.style.display = 'block'; return; }
-    if (data.password !== pass) { err.textContent = 'رمز عبور اشتباهه'; err.style.display = 'block'; return; }
+    if (error || !data) { 
+        err.textContent = 'نام کاربری یا رمز عبور اشتباه است'; 
+        err.style.display = 'block'; 
+        return; 
+    }
     
     currentUser = user;
-    currentPassword = pass; // برای استفاده در فراخوانی توابع امن (RPC) نگه داشته میشه
+    currentPassword = pass;
     currentPlayer = data;
     if (!currentPlayer.inventions) currentPlayer.inventions = {};
     if (currentPlayer.satisfaction === undefined) currentPlayer.satisfaction = 100;
@@ -618,7 +624,7 @@ window.doLogin = async function() {
     document.getElementById('header-sub').textContent = 'مرکز فرماندهی — ' + user;
     if (!currentPlayer.faction) showScreen('screen-faction');
     else { updateStats(); showScreen('screen-main'); }
-  } catch(e) { err.textContent = 'خطا در اتصال به سرور'; err.style.display = 'block'; }
+  } catch(e) { err.textContent = 'خطا در ارتباط با سرور'; err.style.display = 'block'; }
 };
 
 window.doRegister = async function() {
@@ -636,14 +642,13 @@ window.doRegister = async function() {
   if (pass.length < 6) { err.textContent = 'رمز عبور حداقل ۶ کاراکتر'; err.style.display = 'block'; return; }
   if (pass !== pass2) { err.textContent = 'رمزها یکی نیستن'; err.style.display = 'block'; return; }
   try {
-    // ثبت‌نام الان از طریق تابع امن سمت دیتابیس انجام میشه، نه insert مستقیم
-    const { data, error } = await supabase.rpc('register_player', {
-      p_username: user, p_password: pass, p_invite: invite
-    });
-    if (error) throw error;
+    const { data, error } = await supabase.from('players').insert([{ 
+      username: user, password: pass, money: 85000, gold: 0, satisfaction: 100, mines: {}, military: {}, inventions: {}, last_income: 0, faction: '', faction_type: '' 
+    }]);
+    if(error) throw error;
     suc.textContent = '✅ ثبت‌نام موفق! حالا از تب ورود وارد شو.'; suc.style.display = 'block';
   } catch(e) {
-    err.textContent = e.message && e.message.includes('قبلاً ثبت شده') ? 'این نام کاربری قبلاً ثبت شده' : 'خطا در ثبت‌نام';
+    err.textContent = e.message && e.message.includes('duplicate') ? 'این نام کاربری قبلاً ثبت شده' : 'خطا در ثبت‌نام';
     err.style.display = 'block';
   }
 };
@@ -772,7 +777,6 @@ window.renderShopItems = function() {
   });
 };
 
-// خرید تجهیزات الان از طریق تابع امن buy_military روی سرور انجام میشه
 window.buyItemBulk = async function(name) {
   const input = document.getElementById(`qty-${name}`);
   const qty = parseInt(input.value);
@@ -809,7 +813,6 @@ window.renderMines = function() {
   });
 };
 
-// خرید معدن الان از طریق تابع امن buy_mine روی سرور انجام میشه (محدودیت ۷ تایی هم اونجا چک میشه)
 window.buyMine = async function(name) {
   try {
     const { data, error } = await supabase.rpc('buy_mine', {
@@ -830,7 +833,6 @@ window.initExchange = function() {
   document.getElementById('ex-gold-input').value = 1;
 };
 
-// فروش طلا الان از طریق تابع امن sell_gold روی سرور انجام میشه
 window.sellGold = async function() {
   const input = document.getElementById('ex-gold-input');
   const amount = parseInt(input.value);
@@ -850,7 +852,6 @@ window.sellGold = async function() {
   }
 };
 
-// دریافت درآمد الان از طریق تابع امن collect_income روی سرور انجام میشه (محدودیت ۲۴ ساعته هم اونجا چک میشه)
 window.collectIncome = async function() {
   try {
     const { data, error } = await supabase.rpc('collect_income', {
@@ -870,7 +871,7 @@ window.loadLeaderboard = async function() {
   const container = document.getElementById('lb-content');
   container.innerHTML = '<div class="loading">در حال بارگذاری و محاسبه رتبه‌بندی‌ها...</div>';
   try {
-    const { data, error } = await supabase.from('players').select('*');
+    const { data, error } = await supabase.rpc('get_players_list_secure');
     if (error) throw error;
     lbCacheData = data || [];
     renderLeaderboard();
@@ -988,7 +989,7 @@ async function loadAdminPanel() {
   const container = document.getElementById('admin-players');
   container.innerHTML = '<div class="loading">در حال بارگذاری...</div>';
   try {
-    const { data, error } = await supabase.from('players').select('*');
+    const { data, error } = await supabase.rpc('get_players_list_secure');
     if(error) throw error;
     container.innerHTML = '';
     data.forEach(p => {
@@ -1007,7 +1008,6 @@ async function loadAdminPanel() {
 }
 window.loadAdminPanel = loadAdminPanel;
 
-/* DELETE PLAYER & FREE FACTION FUNCTION — از طریق تابع امن admin_delete_player */
 window.adminDeletePlayer = async function(uid, factionName) {
   const confirmDelete = confirm(`⚠️ آیا مطمئن هستید که می‌خواهید کاربر "${uid}" و کشور/جناح "${factionName}" را کاملاً حذف کنید؟\nاین عملیات غیرقابل بازگشت است و کشور آزاد می‌شود.`);
   if (!confirmDelete) return;
@@ -1033,18 +1033,24 @@ async function adminOpenEdit(uid) {
   adminEditTarget = uid;
   document.getElementById('admin-edit-name').textContent = uid;
   
-  const { data } = await supabase.from('players').select('*').eq('username', uid).single();
+  const { data } = await supabase.rpc('get_players_list_secure');
+  const playerData = data.find(p => p.username === uid);
   
-  document.getElementById('admin-money-val').value = data.money || 0;
-  document.getElementById('admin-gold-val').value = data.gold || 0;
-  document.getElementById('admin-satisfaction-val').value = data.satisfaction !== undefined ? data.satisfaction : 100;
+  if (!playerData) {
+    notify('❌ کاربر پیدا نشد');
+    return;
+  }
+  
+  document.getElementById('admin-money-val').value = playerData.money || 0;
+  document.getElementById('admin-gold-val').value = playerData.gold || 0;
+  document.getElementById('admin-satisfaction-val').value = playerData.satisfaction !== undefined ? playerData.satisfaction : 100;
 
-  renderAdminInventionsList(data.inventions || {});
+  renderAdminInventionsList(playerData.inventions || {});
   
   const minesContainer = document.getElementById('admin-mines-container');
   minesContainer.innerHTML = '';
   Object.keys(MINES).forEach(mName => {
-    const count = (data.mines || {})[mName] || 0;
+    const count = (playerData.mines || {})[mName] || 0;
     const div = document.createElement('div');
     div.className = 'admin-item-row';
     div.innerHTML = `
@@ -1060,7 +1066,7 @@ async function adminOpenEdit(uid) {
   milContainer.innerHTML = '';
   Object.entries(MILITARY).forEach(([cat, items]) => {
     Object.keys(items).forEach(milName => {
-      const count = (data.military || {})[milName] || 0;
+      const count = (playerData.military || {})[milName] || 0;
       const div = document.createElement('div');
       div.className = 'admin-item-row';
       div.innerHTML = `
@@ -1097,7 +1103,6 @@ function renderAdminInventionsList(inventionsObj) {
   });
 }
 
-// ثبت اختراع اختصاصی از طریق تابع امن admin_add_invention
 window.adminAddInvention = async function() {
   if (!adminEditTarget) return;
   const nameInput = document.getElementById('admin-inv-name');
@@ -1117,17 +1122,18 @@ window.adminAddInvention = async function() {
     });
     if (error) throw error;
 
-    const { data } = await supabase.from('players').select('inventions').eq('username', adminEditTarget).single();
+    const { data } = await supabase.rpc('get_players_list_secure');
+    const playerData = data.find(p => p.username === adminEditTarget);
+    
     nameInput.value = '';
     priceInput.value = '';
-    renderAdminInventionsList(data.inventions || {});
+    renderAdminInventionsList(playerData.inventions || {});
     notify(`💡 اختراع "${name}" با قیمت ${price.toLocaleString()} ₿ ثبت شد.`);
   } catch(e) {
     notify('❌ ' + (e.message || 'خطا در افزودن اختراع به دیتابیس'));
   }
 };
 
-// حذف اختراع از طریق تابع امن admin_delete_invention
 window.adminDeleteInvention = async function(invName) {
   if (!adminEditTarget) return;
   try {
@@ -1136,15 +1142,16 @@ window.adminDeleteInvention = async function(invName) {
     });
     if (error) throw error;
 
-    const { data } = await supabase.from('players').select('inventions').eq('username', adminEditTarget).single();
-    renderAdminInventionsList(data.inventions || {});
+    const { data } = await supabase.rpc('get_players_list_secure');
+    const playerData = data.find(p => p.username === adminEditTarget);
+    
+    renderAdminInventionsList(playerData.inventions || {});
     notify(`🗑️ اختراع "${invName}" حذف گردید.`);
   } catch(e) {
     notify('❌ ' + (e.message || 'خطا در حذف اختراع'));
   }
 };
 
-// آپدیت پول/طلا/رضایت از طریق تابع امن admin_update_field
 window.adminUpdateBase = async function(field) {
   if(!adminEditTarget) return;
   const val = parseInt(document.getElementById(`admin-${field}-val`).value);
@@ -1158,7 +1165,6 @@ window.adminUpdateBase = async function(field) {
   } catch(e) { notify('❌ ' + (e.message || 'خطا در ذخیره دیتابیس')); }
 };
 
-// ویرایش تعداد معدن یا آیتم نظامی از طریق توابع امن admin_save_mine_item / admin_save_military_item
 window.adminSaveSingleItem = async function(type, itemName, inputId) {
   if(!adminEditTarget) return;
   const newVal = parseInt(document.getElementById(inputId).value);
@@ -1174,7 +1180,6 @@ window.adminSaveSingleItem = async function(type, itemName, inputId) {
   } catch(e) { notify('❌ ' + (e.message || 'خطا در ذخیره مقدار دیتابیس')); }
 };
 
-// INITIAL LOAD
 document.getElementById('screen-loading').classList.remove('active');
 showScreen('screen-login');
 </script>
