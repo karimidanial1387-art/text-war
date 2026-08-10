@@ -648,15 +648,30 @@ window.doRegister = async function() {
   }
 };
 
-window.doAdminLogin = function() {
+window.doAdminLogin = async function() {
   const pass = prompt('رمز عبور ادمین:');
   if (!pass) return;
-  // این فقط برای باز کردن پنل ادمینه؛ چک واقعی امنیتی هر عملیات، سمت دیتابیس (تابع RPC) انجام میشه
-  adminPassword = pass;
-  currentUser = 'admin';
-  document.getElementById('header-sub').textContent = 'پنل مدیریت ادمین';
-  loadAdminPanel();
-  showScreen('screen-admin');
+
+  document.getElementById('screen-loading').classList.add('active');
+  
+  try {
+    const { data, error } = await supabase.rpc('verify_admin', { p_admin_pass: pass });
+    document.getElementById('screen-loading').classList.remove('active');
+
+    if (error || data !== true) {
+      notify('❌ رمز عبور اشتباه است! دسترسی مسدود شد.');
+      return;
+    }
+
+    adminPassword = pass;
+    currentUser = 'admin';
+    document.getElementById('header-sub').textContent = 'پنل مدیریت ادمین';
+    loadAdminPanel();
+    showScreen('screen-admin');
+  } catch(e) {
+    document.getElementById('screen-loading').classList.remove('active');
+    notify('❌ خطا در ارتباط با سرور');
+  }
 };
 
 window.doLogout = function() {
