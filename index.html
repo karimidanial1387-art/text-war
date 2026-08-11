@@ -587,6 +587,53 @@ async function getOccupiedFactions() {
   return occupied;
 }
 
+// تابع ذخیره اطلاعات کاربر در دیتابیس (بدون نیاز به توابع پیچیده سرور)
+async function savePlayer() {
+  if (!currentUser || !currentPlayer) return;
+  try {
+    await supabase.from('players').update({
+      faction: currentPlayer.faction,
+      faction_type: currentPlayer.faction_type
+    }).eq('username', currentUser);
+  } catch(e) {
+    console.error(e);
+  }
+}
+window.selectFaction = async function(faction, type) {
+  document.getElementById('screen-loading').classList.add('active');
+  try {
+    const occupied = await getOccupiedFactions();
+    if (occupied.includes(faction)) {
+      document.getElementById('screen-loading').classList.remove('active');
+      notify('❌ این جناح توسط شخص دیگری پر شده است!');
+      return;
+    }
+
+    // ارسال درخواست به راهروی اختصاصی سرور برای ثبت کشور
+    const { error } = await supabase.rpc('set_faction', {
+      p_username: currentUser,
+      p_faction: faction,
+      p_type: type
+    });
+
+    if (error) throw error;
+
+    // آپدیت دیتا در حافظه موقت مرورگر
+    currentPlayer.faction = faction;
+    currentPlayer.faction_type = type;
+
+    document.getElementById('screen-loading').classList.remove('active');
+    updateStats();
+    notify('✅ جناح ' + faction + ' با موفقیت ثبت شد.');
+    showScreen('screen-main');
+  } catch (error) {
+    document.getElementById('screen-loading').classList.remove('active');
+    notify('❌ خطا در ارتباط با سرور برای ذخیره کشور');
+    console.error(error);
+  }
+};
+
+
 window.switchTab = function(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById(`tab-${tab}`).classList.add('active');
@@ -703,12 +750,14 @@ async function showCountries(continent) {
     const isTaken = occupied.includes(c);
     btn.textContent = c + (isTaken ? ' (پر شده ❌)' : '');
     if(isTaken) btn.disabled = true;
-    btn.onclick = () => notify('انتخاب کشور توسط ادمین انجام می‌شود. لطفاً با ادمین هماهنگ کنید.');
+    
+    // تغییر جهت اجازه انتخاب مستقیم توسط بازیکن
+    btn.onclick = () => selectFaction(c, 'country');
+    
     list.appendChild(btn);
   });
   showScreen('screen-country');
 }
-window.showCountries = showCountries;
 
 async function showGroups() {
   const list = document.getElementById('group-list'); list.innerHTML = '';
@@ -718,11 +767,15 @@ async function showGroups() {
     const isTaken = occupied.includes(g);
     btn.textContent = g + (isTaken ? ' (پر شده ❌)' : '');
     if(isTaken) btn.disabled = true;
-    btn.onclick = () => notify('انتخاب گروهک توسط ادمین انجام می‌شود. لطفاً با ادمین هماهنگ کنید.');
+    
+    // تغییر جهت اجازه انتخاب مستقیم توسط بازیکن
+    btn.onclick = () => selectFaction(g, 'group');
+    
     list.appendChild(btn);
   });
   showScreen('screen-group');
 }
+
 window.showGroups = showGroups;
 
 window.initShop = function() {
